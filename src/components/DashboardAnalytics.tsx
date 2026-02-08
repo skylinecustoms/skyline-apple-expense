@@ -7,11 +7,24 @@ import {
   ArrowTrendingUpIcon, 
   ArrowTrendingDownIcon,
   CalendarIcon,
-  TagIcon
+  TagIcon,
+  TargetIcon
 } from '@heroicons/react/24/outline'
 
 interface DashboardAnalyticsProps {
   expenses: Expense[]
+}
+
+// Performance color types
+type PerformanceColor = 'green' | 'yellow' | 'red'
+
+interface MetricCard {
+  title: string
+  value: string
+  target: string
+  performance: PerformanceColor
+  icon: any
+  subtitle?: string
 }
 
 export default function DashboardAnalytics({ expenses }: DashboardAnalyticsProps) {
@@ -77,43 +90,64 @@ export default function DashboardAnalytics({ expenses }: DashboardAnalyticsProps
     )
   }
 
+  // Define targets and calculate performance
+  const weeklyTarget = 1000 // $1000/week target
+  const cacTarget = 200 // $200 CAC target
+  const leadsTarget = 20 // 20 leads/week target
+  const ltvRatioTarget = 3.0 // 3:1 LTV:CAC ratio
+
+  // Calculate metrics with performance colors
+  const metrics: MetricCard[] = [
+    {
+      title: 'Weekly Revenue',
+      value: `$${analytics.last7Days.toFixed(0)}`,
+      target: `$${weeklyTarget}`,
+      performance: getPerformanceColor(analytics.last7Days, weeklyTarget, true),
+      icon: ChartBarIcon,
+      subtitle: analytics.last7Days >= weeklyTarget ? 'Target Met!' : `${((analytics.last7Days / weeklyTarget) * 100).toFixed(0)}% of target`
+    },
+    {
+      title: 'Receipts Scanned',
+      value: `${expenses.length}`,
+      target: `${leadsTarget}`,
+      performance: getPerformanceColor(expenses.length, leadsTarget, true),
+      icon: TagIcon,
+      subtitle: expenses.length >= leadsTarget ? 'Target Met!' : `${((expenses.length / leadsTarget) * 100).toFixed(0)}% of target`
+    },
+    {
+      title: 'Avg Expense',
+      value: `$${analytics.averageExpense.toFixed(0)}`,
+      target: `$${cacTarget}`,
+      performance: getPerformanceColor(analytics.averageExpense, cacTarget, false), // Lower is better
+      icon: TargetIcon,
+      subtitle: analytics.averageExpense <= cacTarget ? 'Under Target' : `$${(analytics.averageExpense - cacTarget).toFixed(0)} over`
+    },
+    {
+      title: 'Growth Trend',
+      value: `${analytics.trend >= 0 ? '+' : ''}${analytics.trend.toFixed(1)}%`,
+      target: '+10%',
+      performance: analytics.trend >= 10 ? 'green' : analytics.trend >= 0 ? 'yellow' : 'red',
+      icon: analytics.trend >= 0 ? ArrowTrendingUpIcon : ArrowTrendingDownIcon,
+      subtitle: analytics.trend >= 10 ? 'Excellent!' : analytics.trend >= 0 ? 'Growing' : 'Declining'
+    }
+  ]
+
   const maxCategoryValue = Math.max(...Object.values(analytics.byCategory), 1)
   const maxMonthValue = Math.max(...Object.values(analytics.byMonth), 1)
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <SummaryCard
-          title="Total Spent"
-          value={`$${analytics.totalExpenses.toFixed(2)}`}
-          icon={ChartBarIcon}
-          color="blue"
-        />
-        <SummaryCard
-          title="Avg Expense"
-          value={`$${analytics.averageExpense.toFixed(2)}`}
-          icon={TagIcon}
-          color="green"
-        />
-        <SummaryCard
-          title="Last 7 Days"
-          value={`$${analytics.last7Days.toFixed(2)}`}
-          icon={CalendarIcon}
-          color="purple"
-        />
-        <SummaryCard
-          title="Trend"
-          value={`${analytics.trend >= 0 ? '+' : ''}${analytics.trend.toFixed(1)}%`}
-          icon={analytics.trend >= 0 ? ArrowTrendingUpIcon : ArrowTrendingDownIcon}
-          color={analytics.trend >= 0 ? 'red' : 'green'}
-        />
+      {/* Performance Summary Cards */}
+      <div className="grid grid-cols-2 gap-4">
+        {metrics.map((metric, index) => (
+          <PerformanceCard key={index} metric={metric} />
+        ))}
       </div>
 
       {/* Category Breakdown */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <TagIcon className="h-5 w-5 mr-2 text-blue-600" />
+          <TagIcon className="h-5 w-5 mr-2 text-gray-600" />
           Spending by Category
         </h3>
         <div className="space-y-3">
@@ -127,7 +161,7 @@ export default function DashboardAnalytics({ expenses }: DashboardAnalyticsProps
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div
-                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                    className="bg-gray-600 h-2.5 rounded-full transition-all duration-500"
                     style={{ width: `${(amount / maxCategoryValue) * 100}%` }}
                   />
                 </div>
@@ -139,7 +173,7 @@ export default function DashboardAnalytics({ expenses }: DashboardAnalyticsProps
       {/* Monthly Trend */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <CalendarIcon className="h-5 w-5 mr-2 text-purple-600" />
+          <CalendarIcon className="h-5 w-5 mr-2 text-gray-600" />
           Monthly Spending
         </h3>
         <div className="space-y-3">
@@ -154,7 +188,7 @@ export default function DashboardAnalytics({ expenses }: DashboardAnalyticsProps
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div
-                    className="bg-purple-600 h-2.5 rounded-full transition-all duration-500"
+                    className="bg-gray-600 h-2.5 rounded-full transition-all duration-500"
                     style={{ width: `${(amount / maxMonthValue) * 100}%` }}
                   />
                 </div>
@@ -181,26 +215,66 @@ export default function DashboardAnalytics({ expenses }: DashboardAnalyticsProps
   )
 }
 
-function SummaryCard({ title, value, icon: Icon, color }: { 
-  title: string
-  value: string
-  icon: any
-  color: 'blue' | 'green' | 'purple' | 'red'
-}) {
-  const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    purple: 'bg-purple-50 text-purple-600',
-    red: 'bg-red-50 text-red-600'
+// Helper function to determine performance color
+function getPerformanceColor(actual: number, target: number, higherIsBetter: boolean): PerformanceColor {
+  const ratio = higherIsBetter ? actual / target : target / actual
+  
+  if (ratio >= 1) return 'green' // Meeting or exceeding target
+  if (ratio >= 0.8) return 'yellow' // Within 80% of target
+  return 'red' // Below 80% of target
+}
+
+function PerformanceCard({ metric }: { metric: MetricCard }) {
+  const colorStyles = {
+    green: {
+      bg: 'bg-green-50',
+      border: 'border-green-200',
+      text: 'text-green-800',
+      icon: 'text-green-600',
+      badge: 'bg-green-100 text-green-700'
+    },
+    yellow: {
+      bg: 'bg-yellow-50',
+      border: 'border-yellow-200',
+      text: 'text-yellow-800',
+      icon: 'text-yellow-600',
+      badge: 'bg-yellow-100 text-yellow-700'
+    },
+    red: {
+      bg: 'bg-red-50',
+      border: 'border-red-200',
+      text: 'text-red-800',
+      icon: 'text-red-600',
+      badge: 'bg-red-100 text-red-700'
+    }
   }
 
+  const colors = colorStyles[metric.performance]
+
   return (
-    <div className="card p-4">
-      <div className={`w-10 h-10 rounded-lg ${colorClasses[color]} flex items-center justify-center mb-3`}>
-        <Icon className="h-5 w-5" />
+    <div className={`${colors.bg} ${colors.border} border rounded-xl p-4 transition-all duration-200`}>
+      <div className="flex items-start justify-between mb-2">
+        <div className={`w-10 h-10 rounded-lg bg-white/60 flex items-center justify-center ${colors.icon}`}>
+          <metric.icon className="h-5 w-5" />
+        </div>
+        <span className={`text-xs font-medium px-2 py-1 rounded-full ${colors.badge}`}>
+          Target: {metric.target}
+        </span>
       </div>
-      <p className="text-sm text-gray-600 mb-1">{title}</p>
-      <p className="text-xl font-bold text-gray-900">{value}</p>
+      
+      <p className={`text-2xl font-bold ${colors.text} mb-1`}>
+        {metric.value}
+      </p>
+      
+      <p className="text-sm text-gray-600 font-medium mb-1">
+        {metric.title}
+      </p>
+      
+      {metric.subtitle && (
+        <p className={`text-xs ${colors.text} opacity-80`}>
+          {metric.subtitle}
+        </p>
+      )}
     </div>
   )
 }
