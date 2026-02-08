@@ -8,7 +8,7 @@ import {
   ArrowTrendingDownIcon,
   CalendarIcon,
   TagIcon,
-  TargetIcon
+  BanknotesIcon
 } from '@heroicons/react/24/outline'
 
 interface DashboardAnalyticsProps {
@@ -119,7 +119,7 @@ export default function DashboardAnalytics({ expenses }: DashboardAnalyticsProps
       value: `$${analytics.averageExpense.toFixed(0)}`,
       target: `$${cacTarget}`,
       performance: getPerformanceColor(analytics.averageExpense, cacTarget, false), // Lower is better
-      icon: TargetIcon,
+      icon: BanknotesIcon,
       subtitle: analytics.averageExpense <= cacTarget ? 'Under Target' : `$${(analytics.averageExpense - cacTarget).toFixed(0)} over`
     },
     {
