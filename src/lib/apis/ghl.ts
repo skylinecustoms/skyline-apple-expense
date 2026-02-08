@@ -18,6 +18,7 @@ export interface GHLBusinessData {
   };
   conversion_rate: number;
   pipeline_value: number;
+  leads_by_source?: Record<string, number>; // For debugging
 }
 
 export class GHLAPI {
@@ -184,6 +185,7 @@ export class GHLAPI {
 
   /**
    * Get period-specific business data (leads/customers created in date range)
+   * Counts leads with ANY lead source tag (organic, facebook, google, hot lead, etc.)
    */
   async getPeriodBusinessData(period: string): Promise<GHLBusinessData> {
     const { startDate, endDate } = this.getPeriodDates(period);
@@ -191,7 +193,37 @@ export class GHLAPI {
     // Get contacts created in this period
     const periodContacts = await this.getAllContacts(startDate, endDate);
     
-    // Hot leads by service (created in period)
+    // Define ALL lead source tags to count as "leads"
+    const leadSourceTags = [
+      'organic',
+      'facebook', 
+      'google',
+      'instagram',
+      'referral',
+      'hot lead - tints',
+      'hot lead - ceramic coating',
+      'hot lead - ppf',
+      'lead - tints',
+      'lead - ceramic',
+      'lead - ppf',
+      'prospect'
+    ];
+    
+    // Count leads by source
+    const leadsBySource: Record<string, number> = {};
+    let totalLeads = 0;
+    
+    for (const tag of leadSourceTags) {
+      const count = periodContacts.filter(c => 
+        (c.tags || []).includes(tag)
+      ).length;
+      if (count > 0) {
+        leadsBySource[tag] = count;
+        totalLeads += count;
+      }
+    }
+    
+    // Hot leads by service (for service breakdown)
     const hotLeadTags = {
       'tints': 'hot lead - tints',
       'ceramic': 'hot lead - ceramic coating',
@@ -222,12 +254,12 @@ export class GHLAPI {
     const pipelineValue = totalHotLeads * 400;
 
     // Conversion rate for period
-    const conversionRate = totalHotLeads > 0 
-      ? (payingCustomers / totalHotLeads) * 100 
+    const conversionRate = totalLeads > 0 
+      ? (payingCustomers / totalLeads) * 100 
       : 0;
 
     return {
-      total_contacts: periodContacts.length,
+      total_contacts: totalLeads, // Now counts only leads, not all contacts
       hot_leads: {
         total: totalHotLeads,
         by_service: hotLeadsByService
@@ -238,7 +270,8 @@ export class GHLAPI {
         by_period: { [period]: payingCustomers }
       },
       conversion_rate: parseFloat(conversionRate.toFixed(2)),
-      pipeline_value: pipelineValue
+      pipeline_value: pipelineValue,
+      leads_by_source: leadsBySource // Extra detail for debugging
     };
   }
 
