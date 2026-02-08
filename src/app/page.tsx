@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import CameraCapture from '@/components/CameraCapture'
+import EnhancedCameraCapture from '@/components/EnhancedCameraCapture'
 import ExpenseForm from '@/components/ExpenseForm'
 import ExpenseList from '@/components/ExpenseList'
 import MarketingIntelligence from '@/components/MarketingIntelligence'
 import ProfitLoss from '@/components/ProfitLoss'
+import DashboardAnalytics from '@/components/DashboardAnalytics'
 import { CameraIcon, DocumentIcon, ChartBarIcon, BanknotesIcon, ArrowLeftIcon, CalculatorIcon, PresentationChartLineIcon } from '@heroicons/react/24/outline'
 
 export interface Expense {
@@ -105,6 +106,9 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Dashboard Analytics */}
+        <DashboardAnalytics expenses={expenses} />
 
         {/* Quick Stats */}
         <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg border">
@@ -287,7 +291,7 @@ export default function HomePage() {
         {/* Main Content */}
         <div className="card">
           {activeView === 'camera' && (
-            <CameraCapture onReceiptCaptured={handleReceiptCaptured} />
+            <EnhancedCameraCapture onReceiptCaptured={handleReceiptCaptured} />
           )}
           
           {activeView === 'manual' && (
