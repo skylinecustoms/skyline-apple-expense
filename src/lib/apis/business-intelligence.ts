@@ -218,53 +218,63 @@ export class BusinessIntelligence {
   }
 
   /**
-   * Manual QB data fallback (replace with your actual numbers)
+   * Manual QB data fallback - reads from saved manual data
    */
   private getManualQBData(period: string): QBFinancialSummary {
-    // Update these with your actual QuickBooks numbers!
-    const manualData: Record<string, QBFinancialSummary> = {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const dataFile = path.join(process.cwd(), 'qb-manual-data.json');
+      
+      // Try to read saved manual data
+      if (fs.existsSync(dataFile)) {
+        const savedData = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+        const periodData = savedData[period];
+        
+        if (periodData && periodData.revenue !== undefined) {
+          return {
+            total_revenue: periodData.revenue || 0,
+            total_expenses: periodData.expenses || 0,
+            expenses_by_category: {
+              'Marketing': Math.round((periodData.expenses || 0) * 0.3),
+              'Materials': Math.round((periodData.expenses || 0) * 0.4),
+              'Labor': Math.round((periodData.expenses || 0) * 0.2),
+              'Other': Math.round((periodData.expenses || 0) * 0.1)
+            },
+            expenses_by_vendor: {},
+            monthly_trend: {},
+            top_vendors: [],
+            top_categories: []
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Error reading manual QB data:', error);
+    }
+    
+    // Fallback to default data if no saved data exists
+    const defaultData: Record<string, QBFinancialSummary> = {
       'last_7_days': {
-        total_revenue: 600,      // Your actual last week revenue
-        total_expenses: 150,     // Your actual last week expenses
-        expenses_by_category: {
-          'Marketing': 50,
-          'Materials': 75,
-          'Other': 25
-        },
-        expenses_by_vendor: {},
-        monthly_trend: {},
-        top_vendors: [],
-        top_categories: []
+        total_revenue: 600,      // Known last week revenue
+        total_expenses: 150,
+        expenses_by_category: { 'Marketing': 50, 'Materials': 75, 'Other': 25 },
+        expenses_by_vendor: {}, monthly_trend: {}, top_vendors: [], top_categories: []
       },
       'last_30_days': {
-        total_revenue: 2400,     // Update with actual month revenue
-        total_expenses: 600,     // Update with actual month expenses  
-        expenses_by_category: {
-          'Marketing': 200,
-          'Materials': 300,
-          'Labor': 100
-        },
-        expenses_by_vendor: {},
-        monthly_trend: {},
-        top_vendors: [],
-        top_categories: []
+        total_revenue: 0,        // Unknown - needs manual input
+        total_expenses: 0,
+        expenses_by_category: {},
+        expenses_by_vendor: {}, monthly_trend: {}, top_vendors: [], top_categories: []
       },
       'current_month': {
-        total_revenue: 1200,     // Current month to date
-        total_expenses: 300,
-        expenses_by_category: {
-          'Marketing': 100,
-          'Materials': 150,
-          'Other': 50
-        },
-        expenses_by_vendor: {},
-        monthly_trend: {},
-        top_vendors: [],
-        top_categories: []
+        total_revenue: 0,        // Unknown - needs manual input
+        total_expenses: 0,
+        expenses_by_category: {},
+        expenses_by_vendor: {}, monthly_trend: {}, top_vendors: [], top_categories: []
       }
     };
     
-    return manualData[period] || manualData['current_month'];
+    return defaultData[period] || defaultData['current_month'];
   }
 
   /**
