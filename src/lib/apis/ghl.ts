@@ -288,12 +288,16 @@ export class GHLAPI {
   }
 
   /**
-   * Convert period name to date range
+   * Convert period name to date range (EST timezone)
    */
   private getPeriodDates(period: string): { startDate: string; endDate: string } {
+    // Get current date in EST
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
+    const estOffset = -5; // EST is UTC-5
+    const estNow = new Date(now.getTime() + (estOffset * 60 * 60 * 1000));
+    
+    const year = estNow.getFullYear();
+    const month = estNow.getMonth();
 
     // Month mapping
     const months: Record<string, number> = {
@@ -316,7 +320,7 @@ export class GHLAPI {
     // Relative periods
     switch (period.toLowerCase()) {
       case 'yesterday':
-        const yesterday = new Date(now);
+        const yesterday = new Date(estNow);
         yesterday.setDate(yesterday.getDate() - 1);
         return {
           startDate: yesterday.toISOString().split('T')[0],
@@ -324,7 +328,7 @@ export class GHLAPI {
         };
       
       case 'last_7_days':
-        const last7 = new Date(now);
+        const last7 = new Date(estNow);
         last7.setDate(last7.getDate() - 7);
         return {
           startDate: last7.toISOString().split('T')[0],
