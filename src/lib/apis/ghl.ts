@@ -193,20 +193,10 @@ export class GHLAPI {
     // Get contacts created in this period
     const periodContacts = await this.getAllContacts(startDate, endDate);
     
-    // Define ALL lead source tags to count as "leads" (based on actual GHL data)
+    // Define lead source tags - ONLY facebook and organic count as leads
     const leadSourceTags = [
-      'tint lead',           // Most common (35)
-      'facebook',            // 31 leads
-      'hot lead - tints',    // 19 leads
-      '5 day blast - tints', // 16 leads
-      'organic',
-      'google',
-      'instagram',
-      'referral',
-      'hot lead - ceramic coating',
-      'hot lead - ppf',
-      'ceramic lead',
-      'ppf lead'
+      'facebook',            // Facebook ads leads
+      'organic'              // Organic/referral leads
     ];
     
     // Count leads by source
