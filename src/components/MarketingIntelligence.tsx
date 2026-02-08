@@ -655,16 +655,16 @@ export default function MarketingIntelligence() {
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-5 text-white">
               <div className="text-sm opacity-90 mb-1">Next Report</div>
               <div className="font-bold text-lg">
-                {selectedTimeframe === 'daily' ? '🌅 Tomorrow 8:00 AM' : '📊 Sunday 5:00 PM'}
+                {selectedTimeframe === 'yesterday' ? '🌅 Tomorrow 8:00 AM' : '📊 Sunday 5:00 PM'}
               </div>
               <div className="text-xs opacity-75 mt-2">
                 Currently viewing: {
-                  selectedTimeframe === 'daily' ? 'Today only' :
-                  selectedTimeframe === '7days' ? 'Last 7 days' :
-                  selectedTimeframe === 'lastWeek' ? 'Previous week' :
-                  selectedTimeframe === 'lastMonth' ? 'Previous month' :
-                  selectedTimeframe === 'lastQuarter' ? 'Previous quarter' :
-                  'All time data'
+                  selectedTimeframe === 'yesterday' ? 'Yesterday only' :
+                  selectedTimeframe === 'last_7_days' ? 'Last 7 days' :
+                  selectedTimeframe === 'last_30_days' ? 'Last 30 days' :
+                  selectedTimeframe === 'january' ? 'January 2026' :
+                  selectedTimeframe === 'february' ? 'February 2026' :
+                  'Selected period'
                 }
               </div>
             </div>
