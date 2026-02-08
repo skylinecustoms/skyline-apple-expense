@@ -67,11 +67,11 @@ export default function RootLayout({
                     <p className="text-white text-sm font-medium">Business Management</p>
                     <p className="text-blue-100 text-xs">Finances & Expense Tracking</p>
                   </div>
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
                     <img 
                       src="/skyline-logo.jpg" 
                       alt="Skyline Customs Logo" 
-                      className="w-10 h-10 object-contain rounded"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 </div>
