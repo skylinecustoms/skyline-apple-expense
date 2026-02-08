@@ -4,8 +4,8 @@ import { useMemo } from 'react'
 import { Expense } from '@/app/page'
 import { 
   ChartBarIcon, 
-  TrendingUpIcon, 
-  TrendingDownIcon,
+  ArrowTrendingUpIcon, 
+  ArrowTrendingDownIcon,
   CalendarIcon,
   TagIcon
 } from '@heroicons/react/24/outline'
@@ -105,7 +105,7 @@ export default function DashboardAnalytics({ expenses }: DashboardAnalyticsProps
         <SummaryCard
           title="Trend"
           value={`${analytics.trend >= 0 ? '+' : ''}${analytics.trend.toFixed(1)}%`}
-          icon={analytics.trend >= 0 ? TrendingUpIcon : TrendingDownIcon}
+          icon={analytics.trend >= 0 ? ArrowTrendingUpIcon : ArrowTrendingDownIcon}
           color={analytics.trend >= 0 ? 'red' : 'green'}
         />
       </div>
