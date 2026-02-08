@@ -5,16 +5,10 @@ export default function SkylineDashboard() {
   const [currentView, setCurrentView] = useState('home');
 
   const stats = {
-    totalExpenses: 4620.75,
-    receiptsThisMonth: 12,
-    pendingReceipts: 3
+    totalExpenses: 0.00,
+    receiptsScanned: 0,
+    thisMonth: 0
   };
-
-  const recentActivity = [
-    { id: 1, title: 'Marketing Campaign', amount: 1250.00, category: 'Marketing', date: 'Today' },
-    { id: 2, title: 'Office Supplies', amount: 340.50, category: 'Supplies', date: 'Yesterday' },
-    { id: 3, title: 'Equipment Purchase', amount: 2100.00, category: 'Equipment', date: '2 days ago' }
-  ];
 
   if (currentView === 'finances') {
     return <FinancesView onBack={() => setCurrentView('home')} />;
@@ -27,274 +21,264 @@ export default function SkylineDashboard() {
   return (
     <>
       <Head>
-        <title>Skyline Customs | Business Hub</title>
+        <title>Skyline Business Hub</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </Head>
       
       <div style={{
         minHeight: '100vh',
-        backgroundColor: '#F2F2F7',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
-        color: '#000000',
-        WebkitFontSmoothing: 'antialiased',
-        MozOsxFontSmoothing: 'grayscale'
+        background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        color: '#FFFFFF',
+        padding: '0 0 40px 0'
       }}>
-        {/* Header */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          padding: '20px 20px 16px',
-          borderBottom: '1px solid #E5E5EA'
-        }}>
+        {/* Header Section */}
+        <div style={{ padding: '60px 24px 30px' }}>
           <p style={{
-            fontSize: '13px',
-            color: '#8E8E93',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            marginBottom: '4px',
-            fontWeight: '500'
+            fontSize: '14px',
+            color: 'rgba(255,255,255,0.6)',
+            marginBottom: '8px',
+            fontWeight: '400'
           }}>
             Welcome Back
           </p>
           <h1 style={{
-            fontSize: '28px',
+            fontSize: '32px',
             fontWeight: '700',
-            margin: 0,
-            letterSpacing: '-0.5px'
+            margin: '0 0 4px 0',
+            color: '#FFFFFF'
           }}>
             Skyline Customs
           </h1>
           <p style={{
-            fontSize: '17px',
-            color: '#8E8E93',
-            margin: '4px 0 0 0',
-            fontWeight: '400'
+            fontSize: '18px',
+            color: 'rgba(255,255,255,0.7)',
+            margin: 0
           }}>
             Business Hub
           </p>
         </div>
 
-        <div style={{ padding: '20px' }}>
+        {/* Main Cards */}
+        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          {/* Stats Row */}
+          {/* Finances Card */}
+          <button
+            onClick={() => setCurrentView('finances')}
+            style={{
+              width: '100%',
+              padding: 0,
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
+              border: 'none',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              textAlign: 'left',
+              overflow: 'hidden',
+              transition: 'transform 0.2s ease'
+            }}
+            onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+            onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <div style={{ padding: '28px' }}>
+              {/* Icon */}
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '16px',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+                marginBottom: '20px',
+                backdropFilter: 'blur(10px)'
+              }}>
+                💰
+              </div>
+              
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                margin: '0 0 10px 0',
+                color: '#FFFFFF'
+              }}>
+                Finances
+              </h2>
+              
+              <p style={{
+                fontSize: '15px',
+                color: 'rgba(255,255,255,0.8)',
+                margin: '0 0 20px 0',
+                lineHeight: '1.5'
+              }}>
+                Marketing analytics, P&L reports, and financial insights
+              </p>
+              
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                marginBottom: '20px'
+              }}>
+                <span style={{
+                  padding: '8px 16px',
+                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  color: '#FFFFFF',
+                  fontWeight: '500'
+                }}>
+                  P&L Reports
+                </span>
+                <span style={{
+                  padding: '8px 16px',
+                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  color: '#FFFFFF',
+                  fontWeight: '500'
+                }}>
+                  Analytics
+                </span>
+              </div>
+              
+              <div style={{
+                paddingTop: '16px',
+                borderTop: '1px solid rgba(255,255,255,0.2)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.9)', fontWeight: '600' }}>
+                  View Reports
+                </span>
+                <span style={{ fontSize: '20px', color: '#FFFFFF' }}>→</span>
+              </div>
+            </div>
+          </button>
+
+          {/* Expense Tracker Card */}
+          <button
+            onClick={() => setCurrentView('expenses')}
+            style={{
+              width: '100%',
+              padding: 0,
+              background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%)',
+              border: 'none',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              textAlign: 'left',
+              overflow: 'hidden',
+              transition: 'transform 0.2s ease'
+            }}
+            onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+            onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <div style={{ padding: '28px' }}>
+              {/* Icon */}
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '16px',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+                marginBottom: '20px',
+                backdropFilter: 'blur(10px)'
+              }}>
+                📄
+              </div>
+              
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                margin: '0 0 10px 0',
+                color: '#FFFFFF'
+              }}>
+                Expense Tracker
+              </h2>
+              
+              <p style={{
+                fontSize: '15px',
+                color: 'rgba(255,255,255,0.8)',
+                margin: '0 0 20px 0',
+                lineHeight: '1.5'
+              }}>
+                Scan receipts, track expenses, and organize business costs
+              </p>
+              
+              <div style={{
+                display: 'flex',
+                gap: '20px',
+                marginBottom: '20px'
+              }}>
+                <div>
+                  <span style={{
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    color: '#FFFFFF'
+                  }}>
+                    {stats.receiptsScanned}
+                  </span>
+                  <p style={{
+                    fontSize: '13px',
+                    color: 'rgba(255,255,255,0.7)',
+                    margin: '4px 0 0 0'
+                  }}>
+                    Receipts
+                  </p>
+                </div>
+                <div>
+                  <span style={{
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    color: '#FFFFFF'
+                  }}>
+                    ${stats.totalExpenses.toFixed(2)}
+                  </span>
+                  <p style={{
+                    fontSize: '13px',
+                    color: 'rgba(255,255,255,0.7)',
+                    margin: '4px 0 0 0'
+                  }}>
+                    Tracked
+                  </p>
+                </div>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {/* Quick Overview Section */}
+        <div style={{ padding: '30px 20px 0' }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            margin: '0 0 16px 4px',
+            color: 'rgba(255,255,255,0.9)'
+          }}>
+            Quick Overview
+          </h3>
+          
           <div style={{
             display: 'flex',
             gap: '12px',
-            marginBottom: '20px',
             overflowX: 'auto',
-            paddingBottom: '4px'
+            paddingBottom: '8px'
           }}>
-            <StatPill 
+            <OverviewCard 
+              label="Total Expenses" 
+              value={`$${stats.totalExpenses.toFixed(2)}`}
+            />
+            <OverviewCard 
+              label="Receipts Scanned" 
+              value={stats.receiptsScanned.toString()}
+            />
+            <OverviewCard 
               label="This Month" 
-              value={`$${stats.totalExpenses.toLocaleString()}`}
-              color="#007AFF"
+              value={stats.thisMonth.toString()}
             />
-            <StatPill 
-              label="Receipts" 
-              value={stats.receiptsThisMonth}
-              color="#34C759"
-            />
-            <StatPill 
-              label="Pending" 
-              value={stats.pendingReceipts}
-              color="#FF9500"
-            />
-          </div>
-
-          {/* Main Cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            
-            {/* Finances Card */}
-            <button
-              onClick={() => setCurrentView('finances')}
-              style={{
-                width: '100%',
-                padding: 0,
-                backgroundColor: '#FFFFFF',
-                border: 'none',
-                borderRadius: '16px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                overflow: 'hidden'
-              }}
-              onTouchStart={(e) => {
-                e.currentTarget.style.transform = 'scale(0.98)';
-                e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)';
-              }}
-              onTouchEnd={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-              }}
-            >
-              <div style={{ padding: '20px' }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '12px',
-                  backgroundColor: '#007AFF15',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '24px',
-                  marginBottom: '16px'
-                }}>
-                  💰
-                </div>
-                <h2 style={{
-                  fontSize: '20px',
-                  fontWeight: '600',
-                  margin: '0 0 6px 0',
-                  color: '#000000'
-                }}>
-                  Finances
-                </h2>
-                <p style={{
-                  fontSize: '15px',
-                  color: '#8E8E93',
-                  margin: 0,
-                  lineHeight: '1.4'
-                }}>
-                  P&L reports, marketing analytics, and financial insights
-                </p>
-                <div style={{
-                  marginTop: '16px',
-                  paddingTop: '16px',
-                  borderTop: '1px solid #E5E5EA',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <span style={{ fontSize: '15px', color: '#007AFF', fontWeight: '500' }}>
-                    View Reports
-                  </span>
-                  <span style={{ fontSize: '18px', color: '#C7C7CC' }}>›</span>
-                </div>
-              </div>
-            </button>
-
-            {/* Expense Tracker Card */}
-            <button
-              onClick={() => setCurrentView('expenses')}
-              style={{
-                width: '100%',
-                padding: 0,
-                backgroundColor: '#FFFFFF',
-                border: 'none',
-                borderRadius: '16px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                overflow: 'hidden'
-              }}
-              onTouchStart={(e) => {
-                e.currentTarget.style.transform = 'scale(0.98)';
-                e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)';
-              }}
-              onTouchEnd={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-              }}
-            >
-              <div style={{ padding: '20px' }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '12px',
-                  backgroundColor: '#34C75915',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '24px',
-                  marginBottom: '16px'
-                }}>
-                  📄
-                </div>
-                <h2 style={{
-                  fontSize: '20px',
-                  fontWeight: '600',
-                  margin: '0 0 6px 0',
-                  color: '#000000'
-                }}>
-                  Expense Tracker
-                </h2>
-                <p style={{
-                  fontSize: '15px',
-                  color: '#8E8E93',
-                  margin: 0,
-                  lineHeight: '1.4'
-                }}>
-                  Scan receipts, track expenses, and organize business costs
-                </p>
-                <div style={{
-                  marginTop: '16px',
-                  paddingTop: '16px',
-                  borderTop: '1px solid #E5E5EA',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <span style={{ fontSize: '15px', color: '#8E8E93' }}>
-                    {stats.receiptsThisMonth} receipts this month
-                  </span>
-                  <span style={{ fontSize: '18px', color: '#C7C7CC' }}>›</span>
-                </div>
-              </div>
-            </button>
-          </div>
-
-          {/* Recent Activity */}
-          <div style={{ marginTop: '24px' }}>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              margin: '0 0 12px 0',
-              paddingLeft: '4px'
-            }}>
-              Recent Activity
-            </h3>
-            <div style={{ 
-              backgroundColor: '#FFFFFF',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-            }}>
-              {recentActivity.map((item, index) => (
-                <div key={item.id} style={{
-                  padding: '16px',
-                  borderBottom: index < recentActivity.length - 1 ? '1px solid #E5E5EA' : 'none',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div>
-                    <p style={{
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      margin: '0 0 4px 0',
-                      color: '#000000'
-                    }}>
-                      {item.title}
-                    </p>
-                    <p style={{
-                      fontSize: '13px',
-                      color: '#8E8E93',
-                      margin: 0
-                    }}>
-                      {item.category} • {item.date}
-                    </p>
-                  </div>
-                  <p style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: '#000000'
-                  }}>
-                    ${item.amount.toLocaleString()}
-                  </p>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
@@ -302,29 +286,28 @@ export default function SkylineDashboard() {
   );
 }
 
-function StatPill({ label, value, color }) {
+function OverviewCard({ label, value }) {
   return (
     <div style={{
-      backgroundColor: '#FFFFFF',
-      borderRadius: '12px',
-      padding: '12px 16px',
-      minWidth: '110px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+      backgroundColor: 'rgba(255,255,255,0.08)',
+      borderRadius: '16px',
+      padding: '16px 20px',
+      minWidth: '140px',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255,255,255,0.1)'
     }}>
       <p style={{
-        fontSize: '11px',
-        color: '#8E8E93',
-        margin: '0 0 4px 0',
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px',
+        fontSize: '12px',
+        color: 'rgba(255,255,255,0.6)',
+        margin: '0 0 6px 0',
         fontWeight: '500'
       }}>
         {label}
       </p>
       <p style={{
-        fontSize: '17px',
+        fontSize: '22px',
         fontWeight: '700',
-        color: color,
+        color: '#FFFFFF',
         margin: 0
       }}>
         {value}
@@ -337,203 +320,93 @@ function FinancesView({ onBack }) {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#F2F2F7',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+      background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      color: '#FFFFFF'
     }}>
-      {/* Header */}
-      <div style={{
-        backgroundColor: '#FFFFFF',
-        padding: '16px 20px',
-        borderBottom: '1px solid #E5E5EA',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
+      <div style={{ padding: '60px 24px 30px' }}>
         <button 
           onClick={onBack}
           style={{
             background: 'none',
             border: 'none',
-            color: '#007AFF',
+            color: '#FFFFFF',
             fontSize: '17px',
-            fontWeight: '400',
             cursor: 'pointer',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
             padding: 0
           }}
         >
-          ‹ Back
+          ← Back
         </button>
         <h1 style={{
-          fontSize: '17px',
-          fontWeight: '600',
-          margin: 0,
-          flex: 1,
-          textAlign: 'center'
+          fontSize: '28px',
+          fontWeight: '700'
         }}>
           Finances
         </h1>
-        <div style={{ width: '50px' }} />
       </div>
-
-      <div style={{ padding: '20px' }}>
-        {/* Total Card */}
-        <div style={{
-          backgroundColor: '#007AFF',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '20px'
-        }}>
-          <p style={{
-            fontSize: '15px',
-            color: 'rgba(255,255,255,0.8)',
-            margin: '0 0 8px 0'
-          }}>
-            Total Expenses (This Month)
-          </p>
-          <p style={{
-            fontSize: '34px',
-            fontWeight: '700',
-            color: '#FFFFFF',
-            margin: 0,
-            letterSpacing: '-0.5px'
-          }}>
-            $4,620.75
-          </p>
-        </div>
-
-        <p style={{
-          color: '#8E8E93',
-          textAlign: 'center',
-          fontSize: '15px'
-        }}>
-          Detailed P&L reports and analytics coming soon...
-        </p>
+      
+      <div style={{ padding: '0 24px' }}>
+        <p style={{ color: 'rgba(255,255,255,0.6)' }}>Finance details coming soon...</p>
       </div>
     </div>
   );
 }
 
 function ExpensesView({ onBack }) {
-  const expenses = [
-    { id: 1, title: 'Marketing Campaign', amount: 1250.00, category: 'Marketing', hasReceipt: true },
-    { id: 2, title: 'Office Supplies', amount: 340.50, category: 'Supplies', hasReceipt: true },
-    { id: 3, title: 'Equipment', amount: 2100.00, category: 'Equipment', hasReceipt: false },
-    { id: 4, title: 'Utilities', amount: 180.25, category: 'Utilities', hasReceipt: true },
-    { id: 5, title: 'Marketing', amount: 750.00, category: 'Marketing', hasReceipt: true }
-  ];
-
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#F2F2F7',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+      background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      color: '#FFFFFF'
     }}>
-      {/* Header */}
-      <div style={{
-        backgroundColor: '#FFFFFF',
-        padding: '16px 20px',
-        borderBottom: '1px solid #E5E5EA',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
+      <div style={{ padding: '60px 24px 30px' }}>
         <button 
           onClick={onBack}
           style={{
             background: 'none',
             border: 'none',
-            color: '#007AFF',
+            color: '#FFFFFF',
             fontSize: '17px',
-            fontWeight: '400',
             cursor: 'pointer',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
             padding: 0
           }}
         >
-          ‹ Back
+          ← Back
         </button>
         <h1 style={{
-          fontSize: '17px',
-          fontWeight: '600',
-          margin: 0,
-          flex: 1,
-          textAlign: 'center'
+          fontSize: '28px',
+          fontWeight: '700'
         }}>
           Expense Tracker
         </h1>
-        <div style={{ width: '50px' }} />
       </div>
-
-      <div style={{ padding: '20px' }}>
-        {/* Scan Button */}
+      
+      <div style={{ padding: '0 24px' }}>
         <button style={{
           width: '100%',
-          padding: '16px',
-          backgroundColor: '#34C759',
+          padding: '18px',
+          background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
           border: 'none',
-          borderRadius: '12px',
+          borderRadius: '16px',
           color: '#FFFFFF',
           fontSize: '17px',
           fontWeight: '600',
           cursor: 'pointer',
-          marginBottom: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px'
+          marginBottom: '20px'
         }}>
-          <span style={{ fontSize: '20px' }}>📷</span>
-          Scan New Receipt
+          📷 Scan Receipt
         </button>
-
-        {/* Expenses List */}
-        <h2 style={{
-          fontSize: '20px',
-          fontWeight: '600',
-          margin: '0 0 12px 4px'
-        }}>
-          Recent Expenses
-        </h2>
-        <div style={{ 
-          backgroundColor: '#FFFFFF',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-        }}>
-          {expenses.map((expense, index) => (
-            <div key={expense.id} style={{
-              padding: '16px',
-              borderBottom: index < expenses.length - 1 ? '1px solid #E5E5EA' : 'none',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <p style={{
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  margin: '0 0 4px 0',
-                  color: '#000000'
-                }}>
-                  {expense.title}
-                </p>
-                <p style={{
-                  fontSize: '13px',
-                  color: '#8E8E93',
-                  margin: 0
-                }}>
-                  {expense.category} {expense.hasReceipt && '• Receipt saved'}
-                </p>
-              </div>
-              <p style={{
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#000000'
-              }}>
-                ${expense.amount.toLocaleString()}
-              </p>
-            </div>
-          ))}
-        </div>
+        <p style={{ color: 'rgba(255,255,255,0.6)' }}>Expense tracking coming soon...</p>
       </div>
     </div>
   );
