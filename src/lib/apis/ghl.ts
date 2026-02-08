@@ -193,20 +193,20 @@ export class GHLAPI {
     // Get contacts created in this period
     const periodContacts = await this.getAllContacts(startDate, endDate);
     
-    // Define ALL lead source tags to count as "leads"
+    // Define ALL lead source tags to count as "leads" (based on actual GHL data)
     const leadSourceTags = [
+      'tint lead',           // Most common (35)
+      'facebook',            // 31 leads
+      'hot lead - tints',    // 19 leads
+      '5 day blast - tints', // 16 leads
       'organic',
-      'facebook', 
       'google',
       'instagram',
       'referral',
-      'hot lead - tints',
       'hot lead - ceramic coating',
       'hot lead - ppf',
-      'lead - tints',
-      'lead - ceramic',
-      'lead - ppf',
-      'prospect'
+      'ceramic lead',
+      'ppf lead'
     ];
     
     // Count leads by source
