@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --skyline-blue: #2563eb;
+  --skyline-orange: #ea580c;
+  --skyline-dark-blue: #1e40af;
+  --skyline-light-orange: #fb923c;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+}
+
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl;
+}
+
+.btn-secondary {
+  @apply bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-lg p-6 border border-gray-100;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--skyline-blue) 0%, var(--skyline-orange) 100%);
+}
+
+@media (max-width: 768px) {
+  body {
+    background: #f8fafc;
+  }
+}
