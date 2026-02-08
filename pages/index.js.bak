@@ -1,0 +1,441 @@
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+
+export default function SkylineExpenseTracker() {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [expenses, setExpenses] = useState([
+    { id: 1, category: 'Marketing', amount: 1250.00, date: '2026-02-05', receipt: true },
+    { id: 2, category: 'Supplies', amount: 340.50, date: '2026-02-04', receipt: true },
+    { id: 3, category: 'Equipment', amount: 2100.00, date: '2026-02-03', receipt: true },
+    { id: 4, category: 'Utilities', amount: 180.25, date: '2026-02-02', receipt: false },
+    { id: 5, category: 'Marketing', amount: 750.00, date: '2026-02-01', receipt: true }
+  ]);
+
+  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const receiptCount = expenses.filter(e => e.receipt).length;
+  const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const categoryColors = {
+    'Marketing': '#007AFF',
+    'Supplies': '#34C759',
+    'Equipment': '#FF9500',
+    'Utilities': '#AF52DE'
+  };
+
+  return (
+    <>
+      <Head>
+        <title>Skyline Customs | Business Hub</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: '#F5F5F7',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+        color: '#1D1D1F',
+        WebkitFontSmoothing: 'antialiased'
+      }}>
+        {/* Navigation */}
+        <nav style={{
+          backgroundColor: 'rgba(255,255,255,0.8)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(0,0,0,0.05)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+          padding: '16px 0'
+        }}>
+          <div style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            padding: '0 40px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div style={{
+              fontSize: '21px',
+              fontWeight: '600',
+              letterSpacing: '-0.5px'
+            }}>
+              Skyline Customs
+            </div>
+            <div style={{
+              display: 'flex',
+              gap: '32px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              {['Overview', 'Expenses', 'Reports', 'Settings'].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setActiveTab(item.toLowerCase())}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: activeTab === item.toLowerCase() ? '#007AFF' : '#86868B',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'color 0.3s ease'
+                  }}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+        </nav>
+
+        {/* Hero Section */}
+        <div style={{
+          background: 'linear-gradient(180deg, #F5F5F7 0%, #FFFFFF 100%)',
+          padding: '80px 40px 60px',
+          textAlign: 'center'
+        }}>
+          <h1 style={{
+            fontSize: '72px',
+            fontWeight: '700',
+            letterSpacing: '-3px',
+            marginBottom: '20px',
+            background: 'linear-gradient(135deg, #1D1D1F 0%, #434344 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            Business Hub
+          </h1>
+          <p style={{
+            fontSize: '24px',
+            color: '#86868B',
+            fontWeight: '400',
+            letterSpacing: '-0.3px',
+            maxWidth: '600px',
+            margin: '0 auto 40px'
+          }}>
+            Manage your automotive empire finances with precision and style.
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 40px 80px'
+        }}>
+          {/* Quick Stats Cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '24px',
+            marginBottom: '60px'
+          }}>
+            <StatCard 
+              title="Total Expenses"
+              value={`$${totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              subtitle={currentMonth}
+              trend="-12% from last month"
+              trendColor="#34C759"
+            />
+            <StatCard 
+              title="Receipts Scanned"
+              value={receiptCount}
+              subtitle="This Month"
+              trend="+3 new today"
+              trendColor="#007AFF"
+            />
+            <StatCard 
+              title="Categories"
+              value="4"
+              subtitle="Active"
+              trend="Marketing highest"
+              trendColor="#FF9500"
+            />
+          </div>
+
+          {/* Two Column Layout */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '40px'
+          }}>
+            {/* Recent Expenses */}
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.04)'
+            }}>
+              <h2 style={{
+                fontSize: '28px',
+                fontWeight: '600',
+                marginBottom: '24px',
+                letterSpacing: '-0.5px'
+              }}>
+                Recent Expenses
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {expenses.map((expense) => (
+                  <ExpenseRow 
+                    key={expense.id}
+                    category={expense.category}
+                    amount={expense.amount}
+                    date={expense.date}
+                    hasReceipt={expense.receipt}
+                    color={categoryColors[expense.category] || '#007AFF'}
+                  />
+                ))}
+              </div>
+              <button style={{
+                width: '100%',
+                marginTop: '24px',
+                padding: '16px',
+                backgroundColor: '#007AFF',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}>
+                + Add Expense
+              </button>
+            </div>
+
+            {/* Scan Receipt Section */}
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.04)'
+            }}>
+              <h2 style={{
+                fontSize: '28px',
+                fontWeight: '600',
+                marginBottom: '24px',
+                letterSpacing: '-0.5px'
+              }}>
+                Scan Receipt
+              </h2>
+              <div style={{
+                border: '2px dashed #D2D2D7',
+                borderRadius: '16px',
+                padding: '60px 40px',
+                textAlign: 'center',
+                backgroundColor: '#FAFAFA',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}>
+                <div style={{
+                  width: '64px',
+                  height: '64px',
+                  margin: '0 auto 20px',
+                  backgroundColor: '#F0F0F0',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '28px'
+                }}>
+                  📷
+                </div>
+                <p style={{
+                  fontSize: '17px',
+                  fontWeight: '600',
+                  color: '#1D1D1F',
+                  marginBottom: '8px'
+                }}>
+                  Tap to scan receipt
+                </p>
+                <p style={{
+                  fontSize: '14px',
+                  color: '#86868B'
+                }}>
+                  or drag and drop files here
+                </p>
+              </div>
+
+              <div style={{ marginTop: '32px' }}>
+                <h3 style={{
+                  fontSize: '17px',
+                  fontWeight: '600',
+                  marginBottom: '16px'
+                }}>
+                  Quick Actions
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <QuickActionButton label="View Reports" icon="📊" />
+                  <QuickActionButton label="Export Data" icon="📤" />
+                  <QuickActionButton label="Settings" icon="⚙️" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer style={{
+          backgroundColor: '#F5F5F7',
+          padding: '40px',
+          textAlign: 'center',
+          borderTop: '1px solid rgba(0,0,0,0.05)'
+        }}>
+          <p style={{
+            fontSize: '12px',
+            color: '#86868B'
+          }}>
+            Skyline Customs Business Hub · Built with precision
+          </p>
+        </footer>
+      </div>
+    </>
+  );
+}
+
+function StatCard({ title, value, subtitle, trend, trendColor }) {
+  return (
+    <div style={{
+      backgroundColor: '#FFFFFF',
+      borderRadius: '20px',
+      padding: '28px',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      cursor: 'pointer'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-2px)';
+      e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.08)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.04)';
+    }}
+    >
+      <p style={{
+        fontSize: '14px',
+        color: '#86868B',
+        fontWeight: '500',
+        marginBottom: '8px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+      }}>
+        {title}
+      </p>
+      <p style={{
+        fontSize: '40px',
+        fontWeight: '700',
+        color: '#1D1D1F',
+        marginBottom: '4px',
+        letterSpacing: '-1px'
+      }}>
+        {value}
+      </p>
+      <p style={{
+        fontSize: '14px',
+        color: '#86868B',
+        marginBottom: '8px'
+      }}>
+        {subtitle}
+      </p>
+      <p style={{
+        fontSize: '13px',
+        color: trendColor,
+        fontWeight: '600'
+      }}>
+        {trend}
+      </p>
+    </div>
+  );
+}
+
+function ExpenseRow({ category, amount, date, hasReceipt, color }) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      padding: '16px',
+      backgroundColor: '#FAFAFA',
+      borderRadius: '12px',
+      transition: 'background-color 0.3s ease'
+    }}
+    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F0F0F0'}
+    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FAFAFA'}
+    >
+      <div style={{
+        width: '12px',
+        height: '12px',
+        borderRadius: '50%',
+        backgroundColor: color,
+        marginRight: '16px'
+      }} />
+      <div style={{ flex: 1 }}>
+        <p style={{
+          fontSize: '16px',
+          fontWeight: '600',
+          color: '#1D1D1F',
+          marginBottom: '2px'
+        }}>
+          {category}
+        </p>
+        <p style={{
+          fontSize: '13px',
+          color: '#86868B'
+        }}>
+          {date}
+        </p>
+      </div>
+      <div style={{ textAlign: 'right' }}>
+        <p style={{
+          fontSize: '16px',
+          fontWeight: '600',
+          color: '#1D1D1F'
+        }}>
+          ${amount.toFixed(2)}
+        </p>
+        {hasReceipt && (
+          <span style={{
+            fontSize: '12px',
+            color: '#34C759',
+            fontWeight: '500'
+          }}>
+            ✓ Receipt
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function QuickActionButton({ label, icon }) {
+  return (
+    <button style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      width: '100%',
+      padding: '16px',
+      backgroundColor: '#FAFAFA',
+      border: '1px solid rgba(0,0,0,0.05)',
+      borderRadius: '12px',
+      fontSize: '15px',
+      fontWeight: '500',
+      color: '#1D1D1F',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      textAlign: 'left'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.backgroundColor = '#F0F0F0';
+      e.currentTarget.style.transform = 'translateX(4px)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.backgroundColor = '#FAFAFA';
+      e.currentTarget.style.transform = 'translateX(0)';
+    }}
+    >
+      <span>{icon}</span>
+      {label}
+    </button>
+  );
+}
