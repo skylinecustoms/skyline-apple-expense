@@ -57,6 +57,13 @@ export default function RootLayout({
             <div className="container mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
+                    <img 
+                      src="/skyline-logo.jpg" 
+                      alt="Skyline Customs Logo" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <div>
                     <h1 className="text-xl font-bold text-white">Skyline Customs</h1>
                     <p className="text-blue-100 text-sm">Business Hub</p>
