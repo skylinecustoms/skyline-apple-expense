@@ -37,11 +37,23 @@ export async function GET(request: NextRequest) {
       tags: c.tags || []
     }));
     
+    // Show only facebook and organic leads with dates
+    const leadContacts = allContacts.filter(c => {
+      const tags = c.tags || [];
+      return tags.includes('facebook') || tags.includes('organic');
+    }).slice(0, 30).map(c => ({
+      name: `${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Unknown',
+      dateAdded: c.dateAdded,
+      dateCreated: c.dateCreated,
+      tags: (c.tags || []).filter((t: string) => t === 'facebook' || t === 'organic')
+    }));
+    
     return NextResponse.json({
       success: true,
       total_contacts_checked: allContacts.length,
       top_tags: sortedTags,
-      sample_contacts: samples
+      sample_contacts: samples,
+      facebook_organic_leads: leadContacts
     });
     
   } catch (error) {
