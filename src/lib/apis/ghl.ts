@@ -83,14 +83,19 @@ export class GHLAPI {
       if (page > 50) hasMore = false;
     }
 
-    // Filter by dateAdded if dates provided
+    // Filter by dateAdded if dates provided (convert UTC to EST)
     if (startDate || endDate) {
       return allContacts.filter(contact => {
-        const contactDate = contact.dateAdded?.split('T')[0];
-        if (!contactDate) return false;
+        if (!contact.dateAdded) return false;
         
-        if (startDate && contactDate < startDate) return false;
-        if (endDate && contactDate > endDate) return false;
+        // Convert UTC date to EST
+        const utcDate = new Date(contact.dateAdded);
+        const estOffset = -5; // EST is UTC-5
+        const estDate = new Date(utcDate.getTime() + (estOffset * 60 * 60 * 1000));
+        const contactDateStr = estDate.toISOString().split('T')[0];
+        
+        if (startDate && contactDateStr < startDate) return false;
+        if (endDate && contactDateStr > endDate) return false;
         
         return true;
       });
