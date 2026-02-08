@@ -200,13 +200,16 @@ export class BusinessIntelligence {
   }
 
   /**
-   * Fetch QuickBooks data
+   * Fetch QuickBooks data for period
    */
   private async fetchQBData(period: string): Promise<QBFinancialSummary | null> {
     if (!this.qb) return null;
     
     try {
-      return await this.qb.getFinancialSummary();
+      // Get date range for the period
+      const { startDate, endDate } = this.getPeriodDates(period);
+      // Pass date range to QuickBooks for period-specific revenue/expenses
+      return await this.qb.getFinancialSummary(startDate, endDate);
     } catch (error) {
       console.error('QuickBooks API error:', error);
       return null;
@@ -230,15 +233,16 @@ export class BusinessIntelligence {
     const hotLeads = ghlPeriodData?.hot_leads.total || 0;
     const leadsByService = ghlPeriodData?.hot_leads.by_service || {};
     
-    // Customer metrics - use ALL-TIME total for CAC, period for new customers
-    const totalCustomers = ghlAllTimeData?.customers.total_paying || 0;
+    // Customer metrics - separate paying customers vs all customers
+    const totalPayingCustomers = ghlAllTimeData?.customers.total_paying || 0;
+    const totalAllCustomers = ghlAllTimeData?.total_contacts || 0; // All contacts including organic
     const periodCustomers = ghlPeriodData?.customers.total_paying || 0;
     const conversionRate = ghlPeriodData?.conversion_rate || 0;
     
     // Revenue metrics - use ACTUAL QuickBooks revenue only (no estimates)
     const pipelineValue = ghlPeriodData?.pipeline_value || 0;
     const actualRevenue = qbData?.total_revenue || 0;
-    const avgJobValue = totalCustomers > 0 ? (actualRevenue / totalCustomers) : 400;
+    const avgJobValue = totalPayingCustomers > 0 ? (actualRevenue / totalPayingCustomers) : 400;
     
     // Only show actual QB revenue (no pipeline estimates)
     const estimatedRevenue = actualRevenue;
@@ -251,8 +255,8 @@ export class BusinessIntelligence {
     const metaCpc = metaData?.insights.cpc || 0;
     const metaConversions = metaData?.insights.conversions || 0;
     
-    // CAC metrics - Blended CAC = Total Ad Spend ÷ Total Customers (all time)
-    const blendedCAC = totalCustomers > 0 ? metaSpend / totalCustomers : 0;
+    // CAC metrics - Blended CAC = Total Ad Spend ÷ ALL Customers (including organic)
+    const blendedCAC = totalAllCustomers > 0 ? metaSpend / totalAllCustomers : 0;
     const targetCAC = 200;
     const cacPerformance = this.getCACPerformance(blendedCAC, targetCAC);
     
@@ -275,7 +279,7 @@ export class BusinessIntelligence {
       total_leads: totalLeads,
       hot_leads: hotLeads,
       leads_by_service: leadsByService,
-      total_customers: totalCustomers,
+      total_customers: totalPayingCustomers,
       new_customers_this_month: periodCustomers,
       conversion_rate: conversionRate,
       pipeline_value: pipelineValue,
@@ -315,5 +319,43 @@ export class BusinessIntelligence {
     if (ratio >= 3) return 'good';
     if (ratio >= 2) return 'warning';
     return 'bad';
+  }
+
+  /**
+   * Convert period string to date range
+   */
+  private getPeriodDates(period: string): { startDate: string; endDate: string } {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    switch (period) {
+      case 'yesterday': {
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        const date = yesterday.toISOString().split('T')[0];
+        return { startDate: date, endDate: date };
+      }
+      case 'last_7_days': {
+        const start = new Date(now);
+        start.setDate(now.getDate() - 7);
+        return { startDate: start.toISOString().split('T')[0], endDate: today };
+      }
+      case 'last_30_days': {
+        const start = new Date(now);
+        start.setDate(now.getDate() - 30);
+        return { startDate: start.toISOString().split('T')[0], endDate: today };
+      }
+      case 'january': {
+        return { startDate: '2026-01-01', endDate: '2026-01-31' };
+      }
+      case 'february': {
+        return { startDate: '2026-02-01', endDate: '2026-02-28' };
+      }
+      case 'current_month':
+      default: {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        return { startDate: start.toISOString().split('T')[0], endDate: today };
+      }
+    }
   }
 }
