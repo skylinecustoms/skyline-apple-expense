@@ -54,6 +54,7 @@ export class GHLAPI {
   /**
    * Get all contacts with pagination
    * Uses page-based pagination (not cursor-based)
+   * Optionally filters by dateAdded range
    */
   async getAllContacts(startDate?: string, endDate?: string): Promise<any[]> {
     const allContacts: any[] = [];
@@ -66,10 +67,6 @@ export class GHLAPI {
         limit: 100,
         page: page
       };
-
-      // Add date filtering if provided
-      if (startDate) params.startDate = startDate;
-      if (endDate) params.endDate = endDate;
 
       const data = await this.fetchWithAuth('/contacts', params);
       
@@ -84,6 +81,19 @@ export class GHLAPI {
 
       // Safety check - max 50 pages (5000 contacts)
       if (page > 50) hasMore = false;
+    }
+
+    // Filter by dateAdded if dates provided
+    if (startDate || endDate) {
+      return allContacts.filter(contact => {
+        const contactDate = contact.dateAdded?.split('T')[0];
+        if (!contactDate) return false;
+        
+        if (startDate && contactDate < startDate) return false;
+        if (endDate && contactDate > endDate) return false;
+        
+        return true;
+      });
     }
 
     return allContacts;
