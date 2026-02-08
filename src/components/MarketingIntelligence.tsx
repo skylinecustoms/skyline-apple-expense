@@ -94,10 +94,6 @@ export default function MarketingIntelligence() {
               case 'january': return 31
               case 'february': return 28
               default: return 7
-              case 'lastMonth': return 4.3
-              case 'lastQuarter': return 13
-              case 'allTime': return 52
-              default: return 1
             }
           }
           const daysInPeriod = getDaysInPeriod()
