@@ -409,7 +409,7 @@ export default function MarketingIntelligence() {
               <p className="text-2xl font-bold text-gray-900">{formatCurrency(marketingData.dailyAdSpend)}</p>
               <p className="text-sm font-medium text-gray-600">Daily Ad Spend</p>
               <p className="text-xs text-orange-600">
-                {selectedTimeframe === 'daily' ? 'Today only' : 'Daily average'}
+                {selectedTimeframe === 'yesterday' ? 'Yesterday only' : 'Daily average'}
               </p>
             </div>
           </div>
