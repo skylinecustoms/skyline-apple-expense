@@ -48,7 +48,14 @@ export class MetaAPI {
     url.searchParams.append('access_token', this.accessToken);
     
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) url.searchParams.append(key, String(value));
+      if (value !== undefined) {
+        // Handle arrays by JSON stringifying them
+        if (Array.isArray(value)) {
+          url.searchParams.append(key, JSON.stringify(value));
+        } else {
+          url.searchParams.append(key, String(value));
+        }
+      }
     });
 
     const response = await fetch(url.toString());
