@@ -164,19 +164,31 @@ export default function MarketingIntelligence() {
             }
           ]
           
+          // Calculate daily ad spend correctly
+          const daysInPeriod = selectedTimeframe === 'daily' ? 1 : 
+                               selectedTimeframe === '7days' || selectedTimeframe === 'lastWeek' ? 7 :
+                               selectedTimeframe === 'lastMonth' ? 30 :
+                               selectedTimeframe === 'lastQuarter' ? 90 : 365;
+          const dailyAdSpend = metaSpend / daysInPeriod;
+          
+          // Use ACTUAL revenue from QuickBooks if available
+          const actualRevenue = kpis.actual_revenue || 0;
+          const estimatedRevenue = dashboard.pipeline_value || 0;
+          const totalRevenue = actualRevenue > 0 ? actualRevenue : estimatedRevenue;
+          
           const realData: MarketingData = {
             metrics: serviceData,
             totalLeads: Math.round(totalLeads * multiplier),
-            totalRevenue: Math.round((dashboard.pipeline_value || 0) * multiplier),
-            totalAdSpend: Math.round(metaSpend * multiplier),
-            dailyAdSpend: Math.round((metaSpend / 7) * (selectedTimeframe === 'daily' ? 1 : multiplier / 7)),
-            blendedCAC: kpis.blended_cac || 167,
-            overallLTGPCAC: kpis.ltv_cac_ratio || 3.1,
-            totalClicks: Math.round(metaClicks * multiplier),
-            totalImpressions: Math.round(86550 * multiplier),
-            overallCTR: kpis.meta_ctr || 6.2,
-            overallCPC: kpis.meta_cpc || 0.40,
-            overallCPL: kpis.blended_cac ? kpis.blended_cac / 3 : 45.4,
+            totalRevenue: Math.round(totalRevenue),
+            totalAdSpend: Math.round(metaSpend),
+            dailyAdSpend: Math.round(dailyAdSpend),
+            blendedCAC: kpis.blended_cac || 0,
+            overallLTGPCAC: kpis.ltv_cac_ratio || 0,
+            totalClicks: Math.round(metaClicks),
+            totalImpressions: Math.round(kpis.meta_impressions || 0),
+            overallCTR: kpis.meta_ctr || 0,
+            overallCPC: kpis.meta_cpc || 0,
+            overallCPL: totalLeads > 0 ? metaSpend / totalLeads : 0,
             lastUpdated: new Date()
           }
           

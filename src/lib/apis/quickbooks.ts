@@ -16,6 +16,7 @@ export interface QBExpense {
 }
 
 export interface QBFinancialSummary {
+  total_revenue: number;
   total_expenses: number;
   expenses_by_category: Record<string, number>;
   expenses_by_vendor: Record<string, number>;
@@ -87,7 +88,10 @@ export class QuickBooksAPI {
    * Get financial summary for period
    */
   async getFinancialSummary(startDate?: string, endDate?: string): Promise<QBFinancialSummary> {
-    const expenses = await this.getExpenses(startDate, endDate);
+    const [expenses, revenueData] = await Promise.all([
+      this.getExpenses(startDate, endDate),
+      this.getRevenue(startDate, endDate)
+    ]);
     
     const byCategory: Record<string, number> = {};
     const byVendor: Record<string, number> = {};
@@ -121,6 +125,7 @@ export class QuickBooksAPI {
       .map(([name, amount]) => ({ name, amount: parseFloat(amount.toFixed(2)) }));
 
     return {
+      total_revenue: revenueData.total_revenue,
       total_expenses: parseFloat(totalExpenses.toFixed(2)),
       expenses_by_category: byCategory,
       expenses_by_vendor: byVendor,
@@ -155,7 +160,42 @@ export class QuickBooksAPI {
   }
 
   /**
-   * Get profit/loss summary
+   * Get actual revenue from QuickBooks (invoices/sales)
+   */
+  async getRevenue(startDate?: string, endDate?: string): Promise<{
+    total_revenue: number;
+    by_month: Record<string, number>;
+  }> {
+    // Query for invoices using QBO query language
+    const query = `SELECT * FROM Invoice WHERE TxnDate >= '${startDate || '2024-01-01'}' AND TxnDate <= '${endDate || new Date().toISOString().split('T')[0]}' ORDERBY TxnDate DESC`;
+    
+    try {
+      const data = await this.fetchWithAuth('/query', { query });
+      
+      let totalRevenue = 0;
+      const byMonth: Record<string, number> = {};
+      
+      for (const invoice of (data.QueryResponse?.Invoice || [])) {
+        const amount = parseFloat(invoice.TotalAmt || '0');
+        totalRevenue += amount;
+        
+        // Monthly breakdown
+        const month = invoice.TxnDate.substring(0, 7); // YYYY-MM
+        byMonth[month] = (byMonth[month] || 0) + amount;
+      }
+      
+      return {
+        total_revenue: parseFloat(totalRevenue.toFixed(2)),
+        by_month: byMonth
+      };
+    } catch (error) {
+      console.error('QB Revenue fetch error:', error);
+      return { total_revenue: 0, by_month: {} };
+    }
+  }
+
+  /**
+   * Get profit/loss summary with actual revenue
    */
   async getProfitLoss(startDate?: string, endDate?: string): Promise<{
     revenue: number;
@@ -163,18 +203,18 @@ export class QuickBooksAPI {
     net_income: number;
     margin: number;
   }> {
-    // This would need to be customized based on your QB chart of accounts
-    // For now, we'll calculate from expenses only
-    const expenseSummary = await this.getFinancialSummary(startDate, endDate);
+    const [expenseSummary, revenueData] = await Promise.all([
+      this.getFinancialSummary(startDate, endDate),
+      this.getRevenue(startDate, endDate)
+    ]);
     
-    // TODO: Add revenue query when QB is connected
-    const revenue = 0; // Placeholder - would come from QB Income accounts
+    const revenue = revenueData.total_revenue;
     const expenses = expenseSummary.total_expenses;
     const netIncome = revenue - expenses;
     const margin = revenue > 0 ? (netIncome / revenue) * 100 : 0;
 
     return {
-      revenue,
+      revenue: parseFloat(revenue.toFixed(2)),
       expenses,
       net_income: parseFloat(netIncome.toFixed(2)),
       margin: parseFloat(margin.toFixed(2))

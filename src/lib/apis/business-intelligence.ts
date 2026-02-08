@@ -21,6 +21,7 @@ export interface BusinessKPIs {
   // Revenue Metrics
   pipeline_value: number;
   estimated_revenue: number;
+  actual_revenue: number; // From QuickBooks
   avg_job_value: number;
   
   // Marketing Metrics
@@ -239,12 +240,13 @@ export class BusinessIntelligence {
     const totalCustomers = ghlData?.customers.total_paying || 0;
     const conversionRate = ghlData?.conversion_rate || 0;
     
-    // Revenue metrics
+    // Revenue metrics - use ACTUAL QuickBooks revenue, not pipeline estimates
     const pipelineValue = ghlData?.pipeline_value || 0;
-    const avgJobValue = totalCustomers > 0 ? pipelineValue / totalCustomers : 400; // Default $400
+    const actualRevenue = qbData?.total_revenue || 0;
+    const avgJobValue = totalCustomers > 0 ? (actualRevenue / totalCustomers) : 400; // Default $400
     
-    // Estimate revenue (pipeline value × conversion rate)
-    const estimatedRevenue = pipelineValue * (conversionRate / 100);
+    // Use actual revenue from QB, fall back to pipeline estimate only if no QB data
+    const estimatedRevenue = actualRevenue > 0 ? actualRevenue : (pipelineValue * (conversionRate / 100));
     
     // Marketing metrics
     const metaSpend = metaData?.total_spend || 0;
@@ -283,6 +285,7 @@ export class BusinessIntelligence {
       conversion_rate: conversionRate,
       pipeline_value: pipelineValue,
       estimated_revenue: parseFloat(estimatedRevenue.toFixed(2)),
+      actual_revenue: actualRevenue,
       avg_job_value: parseFloat(avgJobValue.toFixed(2)),
       meta_spend: metaSpend,
       meta_impressions: metaImpressions,
