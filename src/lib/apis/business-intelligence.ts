@@ -169,21 +169,12 @@ export class BusinessIntelligence {
     if (!this.ghl) return null;
     
     try {
-      // Get period-specific customers and all-time business data
-      const [periodCustomers, allBusinessData] = await Promise.all([
-        this.ghl.getPeriodCustomers(period),
-        this.ghl.getBusinessData()
-      ]);
+      // Get ALL business data (including total customers)
+      const allBusinessData = await this.ghl.getBusinessData();
       
-      // Merge period-specific customer count with overall business data
-      return {
-        ...allBusinessData,
-        customers: {
-          ...allBusinessData.customers,
-          total_paying: periodCustomers.customers_acquired,
-          by_period: { [period]: periodCustomers.customers_acquired }
-        }
-      };
+      // For period-specific metrics, we still use ALL customers for CAC calc
+      // (as requested: "including organic customers")
+      return allBusinessData;
     } catch (error) {
       console.error('GHL API error:', error);
       return null;
@@ -256,7 +247,8 @@ export class BusinessIntelligence {
     const metaCpc = metaData?.insights.cpc || 0;
     const metaConversions = metaData?.insights.conversions || 0;
     
-    // CAC metrics
+    // CAC metrics - Blended CAC = Total Ad Spend ÷ Total Customers (including organic)
+    // This gives the true cost to acquire a customer across all marketing channels
     const blendedCAC = totalCustomers > 0 ? metaSpend / totalCustomers : 0;
     const targetCAC = 200; // $200 target
     const cacPerformance = this.getCACPerformance(blendedCAC, targetCAC);
