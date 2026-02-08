@@ -162,13 +162,27 @@ export class BusinessIntelligence {
   }
 
   /**
-   * Fetch GHL data
+   * Fetch GHL data for period
    */
   private async fetchGHLData(period: string): Promise<GHLBusinessData | null> {
     if (!this.ghl) return null;
     
     try {
-      return await this.ghl.getBusinessData();
+      // Get period-specific customers and all-time business data
+      const [periodCustomers, allBusinessData] = await Promise.all([
+        this.ghl.getPeriodCustomers(period),
+        this.ghl.getBusinessData()
+      ]);
+      
+      // Merge period-specific customer count with overall business data
+      return {
+        ...allBusinessData,
+        customers: {
+          ...allBusinessData.customers,
+          total_paying: periodCustomers.customers_acquired,
+          by_period: { [period]: periodCustomers.customers_acquired }
+        }
+      };
     } catch (error) {
       console.error('GHL API error:', error);
       return null;
@@ -176,13 +190,16 @@ export class BusinessIntelligence {
   }
 
   /**
-   * Fetch Meta data
+   * Fetch Meta data for period
    */
   private async fetchMetaData(period: string): Promise<MetaAdSpend | null> {
     if (!this.meta) return null;
     
     try {
-      return await this.meta.getAdSpend();
+      // Get period dates from meta API's logic
+      const periodData = await this.meta.getPeriodSpend(period);
+      // Fetch full ad spend data for that date range
+      return await this.meta.getAdSpend(periodData.startDate, periodData.endDate);
     } catch (error) {
       console.error('Meta API error:', error);
       return null;

@@ -56,7 +56,7 @@ export default function RealTimeDashboard() {
 
   useEffect(() => {
     fetchDashboardData()
-  }, [])
+  }, [selectedPeriod])
 
   const fetchDashboardData = async () => {
     try {
