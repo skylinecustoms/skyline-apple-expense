@@ -3,7 +3,7 @@
  * Extracts accurate contact data using proven pagination method
  */
 
-const GHL_API_BASE = 'https://rest.gohighlevel.com/v1';
+const GHL_API_BASE = 'https://services.leadconnectorhq.com';
 
 export interface GHLBusinessData {
   total_contacts: number;
@@ -38,6 +38,7 @@ export class GHLAPI {
     const response = await fetch(url.toString(), {
       headers: {
         'Authorization': `Bearer ${this.token}`,
+        'Version': '2021-07-28',
         'Content-Type': 'application/json'
       }
     });
