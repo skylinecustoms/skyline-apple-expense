@@ -5,57 +5,56 @@ export async function GET(request: NextRequest) {
     const ghlToken = process.env.GHL_API_TOKEN;
     const ghlLocationId = process.env.GHL_LOCATION_ID;
     
-    // Debug: Check what we're getting
-    console.log('GHL_TOKEN exists:', !!ghlToken);
-    console.log('GHL_TOKEN length:', ghlToken?.length);
-    console.log('GHL_TOKEN first 10:', ghlToken?.substring(0, 10));
-    console.log('LOCATION_ID:', ghlLocationId);
-    
     if (!ghlToken || !ghlLocationId) {
       return NextResponse.json({
         success: false,
         error: 'Missing environment variables',
-        debug: {
-          hasToken: !!ghlToken,
-          hasLocation: !!ghlLocationId
-        }
+        debug: { hasToken: !!ghlToken, hasLocation: !!ghlLocationId }
       }, { status: 500 });
     }
     
-    // Test direct API call
-    const testUrl = `https://rest.gohighlevel.com/v1/contacts?locationId=${ghlLocationId}&limit=1`;
-    console.log('Testing URL:', testUrl);
-    
-    const response = await fetch(testUrl, {
+    // Test v1 API (Bearer token)
+    const v1Url = `https://rest.gohighlevel.com/v1/contacts?locationId=${ghlLocationId}&limit=1`;
+    const v1Response = await fetch(v1Url, {
       headers: {
         'Authorization': `Bearer ${ghlToken}`,
         'Content-Type': 'application/json'
       }
     });
     
-    console.log('GHL Response status:', response.status);
+    // Test v2 API (Private token in header)
+    const v2Url = `https://services.leadconnectorhq.com/contacts?locationId=${ghlLocationId}&limit=1`;
+    const v2Response = await fetch(v2Url, {
+      headers: {
+        'Authorization': `Bearer ${ghlToken}`,
+        'Version': '2021-07-28',
+        'Content-Type': 'application/json'
+      }
+    });
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.log('GHL Error:', errorText);
-      return NextResponse.json({
-        success: false,
-        error: `GHL API error: ${response.status}`,
-        details: errorText,
-        debug: {
-          tokenPrefix: ghlToken.substring(0, 10),
-          locationId: ghlLocationId
-        }
-      }, { status: 500 });
-    }
-    
-    const data = await response.json();
+    // Test v2 with Token header (alternative auth)
+    const v2bUrl = `https://services.leadconnectorhq.com/contacts?locationId=${ghlLocationId}&limit=1`;
+    const v2bResponse = await fetch(v2bUrl, {
+      headers: {
+        'Token': `${ghlToken}`,
+        'Version': '2021-07-28',
+        'Content-Type': 'application/json'
+      }
+    });
     
     return NextResponse.json({
       success: true,
-      message: 'GHL API connection successful',
-      contactsCount: data.contacts?.length || 0,
-      total: data.total || 0
+      tests: {
+        v1: { status: v1Response.status, ok: v1Response.ok },
+        v2_bearer: { status: v2Response.status, ok: v2Response.ok },
+        v2_token: { status: v2bResponse.status, ok: v2bResponse.ok }
+      },
+      debug: {
+        tokenPrefix: ghlToken.substring(0, 10),
+        tokenLength: ghlToken.length,
+        locationId: ghlLocationId,
+        locationLength: ghlLocationId.length
+      }
     });
     
   } catch (error) {
