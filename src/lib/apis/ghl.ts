@@ -183,6 +183,66 @@ export class GHLAPI {
   }
 
   /**
+   * Get period-specific business data (leads/customers created in date range)
+   */
+  async getPeriodBusinessData(period: string): Promise<GHLBusinessData> {
+    const { startDate, endDate } = this.getPeriodDates(period);
+    
+    // Get contacts created in this period
+    const periodContacts = await this.getAllContacts(startDate, endDate);
+    
+    // Hot leads by service (created in period)
+    const hotLeadTags = {
+      'tints': 'hot lead - tints',
+      'ceramic': 'hot lead - ceramic coating',
+      'ppf': 'hot lead - ppf'
+    };
+
+    const hotLeadsByService: Record<string, number> = {};
+    let totalHotLeads = 0;
+
+    for (const [service, tag] of Object.entries(hotLeadTags)) {
+      const count = periodContacts.filter(c => 
+        (c.tags || []).includes(tag)
+      ).length;
+      hotLeadsByService[service] = count;
+      totalHotLeads += count;
+    }
+
+    // Customers (created in period)
+    const payingCustomers = periodContacts.filter(c =>
+      (c.tags || []).includes('paid/job completed')
+    ).length;
+
+    const depositCustomers = periodContacts.filter(c =>
+      (c.tags || []).includes('deposit paid')
+    ).length;
+
+    // Pipeline value for period
+    const pipelineValue = totalHotLeads * 400;
+
+    // Conversion rate for period
+    const conversionRate = totalHotLeads > 0 
+      ? (payingCustomers / totalHotLeads) * 100 
+      : 0;
+
+    return {
+      total_contacts: periodContacts.length,
+      hot_leads: {
+        total: totalHotLeads,
+        by_service: hotLeadsByService
+      },
+      customers: {
+        total_paying: payingCustomers,
+        total_deposit: depositCustomers,
+        by_period: { [period]: payingCustomers }
+      },
+      conversion_rate: parseFloat(conversionRate.toFixed(2)),
+      pipeline_value: pipelineValue
+    };
+  }
+
+  /**
    * Calculate CAC for a specific period
    */
   async calculateCAC(period: string, metaSpend: number): Promise<{

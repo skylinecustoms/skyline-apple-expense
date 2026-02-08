@@ -100,8 +100,8 @@ export class BusinessIntelligence {
 
     console.log(`Data fetched in ${Date.now() - startTime}ms`);
 
-    // Calculate derived metrics
-    const kpi = this.deriveKPIs(ghlData, metaData, qbData, period);
+    // Calculate derived metrics - use period data for leads, all-time for customers
+    const kpi = this.deriveKPIs(ghlData.period, ghlData.allTime, metaData, qbData, period);
     
     return kpi;
   }
@@ -165,19 +165,20 @@ export class BusinessIntelligence {
   /**
    * Fetch GHL data for period
    */
-  private async fetchGHLData(period: string): Promise<GHLBusinessData | null> {
-    if (!this.ghl) return null;
+  private async fetchGHLData(period: string): Promise<{ allTime: GHLBusinessData | null; period: GHLBusinessData | null }> {
+    if (!this.ghl) return { allTime: null, period: null };
     
     try {
-      // Get ALL business data (including total customers)
+      // Get ALL business data (for total customers count used in CAC)
       const allBusinessData = await this.ghl.getBusinessData();
       
-      // For period-specific metrics, we still use ALL customers for CAC calc
-      // (as requested: "including organic customers")
-      return allBusinessData;
+      // Get period-specific data (for leads created in that timeframe)
+      const periodData = await this.ghl.getPeriodBusinessData(period);
+      
+      return { allTime: allBusinessData, period: periodData };
     } catch (error) {
       console.error('GHL API error:', error);
-      return null;
+      return { allTime: null, period: null };
     }
   }
 
@@ -214,30 +215,33 @@ export class BusinessIntelligence {
 
   /**
    * Derive all KPIs from raw data
+   * Uses period data for leads (created in timeframe), all-time for customers
    */
   private deriveKPIs(
-    ghlData: GHLBusinessData | null,
+    ghlPeriodData: GHLBusinessData | null,
+    ghlAllTimeData: GHLBusinessData | null,
     metaData: MetaAdSpend | null,
     qbData: QBFinancialSummary | null,
     period: string
   ): BusinessKPIs {
     
-    // Lead metrics
-    const totalLeads = ghlData?.total_contacts || 0;
-    const hotLeads = ghlData?.hot_leads.total || 0;
-    const leadsByService = ghlData?.hot_leads.by_service || {};
+    // Lead metrics - use PERIOD-SPECIFIC data (contacts created in date range)
+    const totalLeads = ghlPeriodData?.total_contacts || 0;
+    const hotLeads = ghlPeriodData?.hot_leads.total || 0;
+    const leadsByService = ghlPeriodData?.hot_leads.by_service || {};
     
-    // Customer metrics
-    const totalCustomers = ghlData?.customers.total_paying || 0;
-    const conversionRate = ghlData?.conversion_rate || 0;
+    // Customer metrics - use ALL-TIME total for CAC, period for new customers
+    const totalCustomers = ghlAllTimeData?.customers.total_paying || 0;
+    const periodCustomers = ghlPeriodData?.customers.total_paying || 0;
+    const conversionRate = ghlPeriodData?.conversion_rate || 0;
     
-    // Revenue metrics - use ACTUAL QuickBooks revenue, not pipeline estimates
-    const pipelineValue = ghlData?.pipeline_value || 0;
+    // Revenue metrics - use ACTUAL QuickBooks revenue only (no estimates)
+    const pipelineValue = ghlPeriodData?.pipeline_value || 0;
     const actualRevenue = qbData?.total_revenue || 0;
-    const avgJobValue = totalCustomers > 0 ? (actualRevenue / totalCustomers) : 400; // Default $400
+    const avgJobValue = totalCustomers > 0 ? (actualRevenue / totalCustomers) : 400;
     
-    // Use actual revenue from QB, fall back to pipeline estimate only if no QB data
-    const estimatedRevenue = actualRevenue > 0 ? actualRevenue : (pipelineValue * (conversionRate / 100));
+    // Only show actual QB revenue (no pipeline estimates)
+    const estimatedRevenue = actualRevenue;
     
     // Marketing metrics
     const metaSpend = metaData?.total_spend || 0;
@@ -247,13 +251,12 @@ export class BusinessIntelligence {
     const metaCpc = metaData?.insights.cpc || 0;
     const metaConversions = metaData?.insights.conversions || 0;
     
-    // CAC metrics - Blended CAC = Total Ad Spend ÷ Total Customers (including organic)
-    // This gives the true cost to acquire a customer across all marketing channels
+    // CAC metrics - Blended CAC = Total Ad Spend ÷ Total Customers (all time)
     const blendedCAC = totalCustomers > 0 ? metaSpend / totalCustomers : 0;
-    const targetCAC = 200; // $200 target
+    const targetCAC = 200;
     const cacPerformance = this.getCACPerformance(blendedCAC, targetCAC);
     
-    // LTV metrics (estimate: avg job value × 3 repeat customers)
+    // LTV metrics
     const estimatedLTV = avgJobValue * 3;
     const ltvCACRatio = blendedCAC > 0 ? estimatedLTV / blendedCAC : 0;
     const ratioPerformance = this.getRatioPerformance(ltvCACRatio);
@@ -273,7 +276,7 @@ export class BusinessIntelligence {
       hot_leads: hotLeads,
       leads_by_service: leadsByService,
       total_customers: totalCustomers,
-      new_customers_this_month: totalCustomers, // TODO: Get period-specific
+      new_customers_this_month: periodCustomers,
       conversion_rate: conversionRate,
       pipeline_value: pipelineValue,
       estimated_revenue: parseFloat(estimatedRevenue.toFixed(2)),

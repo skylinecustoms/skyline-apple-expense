@@ -53,7 +53,7 @@ interface MarketingData {
 export default function MarketingIntelligence() {
   const [marketingData, setMarketingData] = useState<MarketingData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'daily' | '7days' | 'lastWeek' | 'lastMonth' | 'lastQuarter' | 'allTime'>('7days')
+  const [selectedTimeframe, setSelectedTimeframe] = useState<'yesterday' | 'last_7_days' | 'last_30_days' | 'january' | 'february'>('last_7_days')
 
   // Real API data
   useEffect(() => {
@@ -61,16 +61,8 @@ export default function MarketingIntelligence() {
       setIsLoading(true)
       
       try {
-        // Map timeframe to API period
-        const periodMap: Record<string, string> = {
-          'daily': 'yesterday',
-          '7days': 'last_7_days',
-          'lastWeek': 'last_7_days',
-          'lastMonth': 'last_30_days',
-          'lastQuarter': 'last_90_days',
-          'allTime': 'all_time'
-        }
-        const period = periodMap[selectedTimeframe] || 'last_7_days'
+        // Use selected timeframe directly as API period
+        const period = selectedTimeframe
         
         // Fetch real data from APIs
         const [dashboardRes, kpisRes] = await Promise.all([
@@ -85,101 +77,99 @@ export default function MarketingIntelligence() {
           const dashboard = dashboardJson.data
           const kpis = kpisJson.data
           
-          // Build service metrics from GHL leads by service
-          const leadsByService = dashboard.leads_by_service || {}
-          const totalLeads = dashboard.hot_leads || 0
-          const totalCustomers = dashboard.total_customers || 0
-          const metaSpend = dashboard.meta_spend || 0
-          const metaClicks = dashboard.meta_clicks || 0
+          // Get PERIOD-SPECIFIC leads from KPIs (not all-time)
+          const totalLeads = kpis.total_leads || 0
+          const hotLeads = kpis.hot_leads || 0
+          const leadsByService = kpis.leads_by_service || {}
+          const totalCustomers = kpis.total_customers || 0
+          const metaSpend = kpis.meta_spend || 0
+          const metaClicks = kpis.meta_clicks || 0
           
-          // Calculate multipliers based on timeframe
-          const getTimeframeMultiplier = () => {
+          // Calculate days in period for daily ad spend
+          const getDaysInPeriod = () => {
             switch (selectedTimeframe) {
-              case 'daily': return 0.14
-              case '7days': return 1
-              case 'lastWeek': return 1
+              case 'yesterday': return 1
+              case 'last_7_days': return 7
+              case 'last_30_days': return 30
+              case 'january': return 31
+              case 'february': return 28
+              default: return 7
               case 'lastMonth': return 4.3
               case 'lastQuarter': return 13
               case 'allTime': return 52
               default: return 1
             }
           }
-          const multiplier = getTimeframeMultiplier()
+          const daysInPeriod = getDaysInPeriod()
           
-          // Service data
+          // Service data - use ACTUAL period-specific leads from GHL
           const serviceData: ServiceMetrics[] = [
             {
               service: 'Tints',
               aov: 350,
               targetMargin: 65,
-              cac: kpis.blended_cac || 47,
-              ltgpCacRatio: kpis.ltv_cac_ratio || 4.8,
-              leads: Math.round((leadsByService.tints || leadsByService.Tints || 0) * multiplier),
-              conversions: Math.round((totalCustomers * 0.6) * multiplier), // Estimate 60% are tints
-              conversionRate: dashboard.conversion_rate || 28.6,
-              revenue: Math.round((dashboard.pipeline_value || 0) * 0.5 * multiplier),
-              adSpend: Math.round((metaSpend * 0.5) * multiplier),
-              cpl: kpis.blended_cac ? kpis.blended_cac / 2 : 13.4,
-              clicks: Math.round((metaClicks * 0.5) * multiplier),
-              impressions: Math.round(12450 * multiplier),
-              ctr: kpis.meta_ctr || 7.2,
-              cpc: kpis.meta_cpc || 0.42,
-              status: (kpis.ltv_cac_ratio || 4.8) >= 3 ? 'green' : (kpis.ltv_cac_ratio || 4.8) >= 2.5 ? 'yellow' : 'red'
+              cac: kpis.blended_cac || 0,
+              ltgpCacRatio: kpis.ltv_cac_ratio || 0,
+              leads: leadsByService.tints || leadsByService.Tints || 0,
+              conversions: Math.round((totalCustomers * 0.6)),
+              conversionRate: kpis.conversion_rate || 0,
+              revenue: 0, // Will show actual QB revenue breakdown when available
+              adSpend: Math.round((metaSpend * 0.5)),
+              cpl: hotLeads > 0 ? metaSpend / hotLeads : 0,
+              clicks: Math.round((metaClicks * 0.5)),
+              impressions: Math.round((kpis.meta_impressions || 0) * 0.5),
+              ctr: kpis.meta_ctr || 0,
+              cpc: kpis.meta_cpc || 0,
+              status: (kpis.ltv_cac_ratio || 0) >= 3 ? 'green' : (kpis.ltv_cac_ratio || 0) >= 2.5 ? 'yellow' : 'red'
             },
             {
               service: 'Ceramic Coatings',
               aov: 1000,
               targetMargin: 60,
-              cac: (kpis.blended_cac || 47) * 1.5,
-              ltgpCacRatio: (kpis.ltv_cac_ratio || 4.8) * 0.8,
-              leads: Math.round((leadsByService.ceramic || leadsByService.Ceramic || 0) * multiplier),
-              conversions: Math.round((totalCustomers * 0.3) * multiplier), // Estimate 30% are coatings
-              conversionRate: (dashboard.conversion_rate || 28.6) * 0.9,
-              revenue: Math.round((dashboard.pipeline_value || 0) * 0.35 * multiplier),
-              adSpend: Math.round((metaSpend * 0.35) * multiplier),
-              cpl: (kpis.blended_cac || 47) * 1.2,
-              clicks: Math.round((metaClicks * 0.35) * multiplier),
-              impressions: Math.round(28900 * multiplier),
-              ctr: (kpis.meta_ctr || 7.2) * 0.9,
-              cpc: (kpis.meta_cpc || 0.42) * 0.85,
-              status: ((kpis.ltv_cac_ratio || 4.8) * 0.8) >= 3 ? 'green' : ((kpis.ltv_cac_ratio || 4.8) * 0.8) >= 2.5 ? 'yellow' : 'red'
+              cac: (kpis.blended_cac || 0) * 1.5,
+              ltgpCacRatio: (kpis.ltv_cac_ratio || 0) * 0.8,
+              leads: leadsByService.ceramic || leadsByService.Ceramic || 0,
+              conversions: Math.round((totalCustomers * 0.3)),
+              conversionRate: (kpis.conversion_rate || 0) * 0.9,
+              revenue: 0,
+              adSpend: Math.round((metaSpend * 0.35)),
+              cpl: (kpis.blended_cac || 0) * 1.2,
+              clicks: Math.round((metaClicks * 0.35)),
+              impressions: Math.round((kpis.meta_impressions || 0) * 0.35),
+              ctr: (kpis.meta_ctr || 0) * 0.9,
+              cpc: (kpis.meta_cpc || 0) * 0.85,
+              status: ((kpis.ltv_cac_ratio || 0) * 0.8) >= 3 ? 'green' : ((kpis.ltv_cac_ratio || 0) * 0.8) >= 2.5 ? 'yellow' : 'red'
             },
             {
               service: 'PPF',
               aov: 2000,
               targetMargin: 50,
-              cac: (kpis.blended_cac || 47) * 2.5,
-              ltgpCacRatio: (kpis.ltv_cac_ratio || 4.8) * 0.6,
-              leads: Math.round((leadsByService.ppf || leadsByService.PPF || 0) * multiplier),
-              conversions: Math.round((totalCustomers * 0.1) * multiplier), // Estimate 10% are PPF
-              conversionRate: (dashboard.conversion_rate || 28.6) * 0.8,
-              revenue: Math.round((dashboard.pipeline_value || 0) * 0.15 * multiplier),
-              adSpend: Math.round((metaSpend * 0.15) * multiplier),
-              cpl: (kpis.blended_cac || 47) * 2,
-              clicks: Math.round((metaClicks * 0.15) * multiplier),
-              impressions: Math.round(45200 * multiplier),
-              ctr: (kpis.meta_ctr || 7.2) * 0.8,
-              cpc: (kpis.meta_cpc || 0.42) * 1,
-              status: ((kpis.ltv_cac_ratio || 4.8) * 0.6) >= 3 ? 'green' : ((kpis.ltv_cac_ratio || 4.8) * 0.6) >= 2.5 ? 'yellow' : 'red'
+              cac: (kpis.blended_cac || 0) * 2.5,
+              ltgpCacRatio: (kpis.ltv_cac_ratio || 0) * 0.6,
+              leads: leadsByService.ppf || leadsByService.PPF || 0,
+              conversions: Math.round((totalCustomers * 0.1)),
+              conversionRate: (kpis.conversion_rate || 0) * 0.8,
+              revenue: 0,
+              adSpend: Math.round((metaSpend * 0.15)),
+              cpl: (kpis.blended_cac || 0) * 2,
+              clicks: Math.round((metaClicks * 0.15)),
+              impressions: Math.round((kpis.meta_impressions || 0) * 0.15),
+              ctr: (kpis.meta_ctr || 0) * 0.8,
+              cpc: (kpis.meta_cpc || 0) * 1,
+              status: ((kpis.ltv_cac_ratio || 0) * 0.6) >= 3 ? 'green' : ((kpis.ltv_cac_ratio || 0) * 0.6) >= 2.5 ? 'yellow' : 'red'
             }
           ]
           
           // Calculate daily ad spend correctly
-          const daysInPeriod = selectedTimeframe === 'daily' ? 1 : 
-                               selectedTimeframe === '7days' || selectedTimeframe === 'lastWeek' ? 7 :
-                               selectedTimeframe === 'lastMonth' ? 30 :
-                               selectedTimeframe === 'lastQuarter' ? 90 : 365;
           const dailyAdSpend = metaSpend / daysInPeriod;
           
-          // Use ACTUAL revenue from QuickBooks if available
+          // Use ACTUAL revenue from QuickBooks (no estimates!)
           const actualRevenue = kpis.actual_revenue || 0;
-          const estimatedRevenue = dashboard.pipeline_value || 0;
-          const totalRevenue = actualRevenue > 0 ? actualRevenue : estimatedRevenue;
           
           const realData: MarketingData = {
             metrics: serviceData,
-            totalLeads: Math.round(totalLeads * multiplier),
-            totalRevenue: Math.round(totalRevenue),
+            totalLeads: totalLeads, // Period-specific leads
+            totalRevenue: Math.round(actualRevenue), // Actual QB revenue
             totalAdSpend: Math.round(metaSpend),
             dailyAdSpend: Math.round(dailyAdSpend),
             blendedCAC: kpis.blended_cac || 0,
@@ -188,7 +178,7 @@ export default function MarketingIntelligence() {
             totalImpressions: Math.round(kpis.meta_impressions || 0),
             overallCTR: kpis.meta_ctr || 0,
             overallCPC: kpis.meta_cpc || 0,
-            overallCPL: totalLeads > 0 ? metaSpend / totalLeads : 0,
+            overallCPL: hotLeads > 0 ? metaSpend / hotLeads : 0,
             lastUpdated: new Date()
           }
           
@@ -272,12 +262,11 @@ export default function MarketingIntelligence() {
           
           <div className="flex flex-wrap gap-2">
             {[
-              { key: 'daily', label: 'Today', color: 'from-green-500 to-emerald-500' },
-              { key: '7days', label: '7 Days', color: 'from-blue-500 to-cyan-500' },
-              { key: 'lastWeek', label: 'Last Week', color: 'from-purple-500 to-pink-500' },
-              { key: 'lastMonth', label: 'Last Month', color: 'from-orange-500 to-red-500' },
-              { key: 'lastQuarter', label: 'Last Quarter', color: 'from-indigo-500 to-purple-500' },
-              { key: 'allTime', label: 'All Time', color: 'from-gray-500 to-slate-600' }
+              { key: 'yesterday', label: 'Yesterday', color: 'from-green-500 to-emerald-500' },
+              { key: 'last_7_days', label: 'Last 7 Days', color: 'from-blue-500 to-cyan-500' },
+              { key: 'last_30_days', label: 'Last 30 Days', color: 'from-purple-500 to-pink-500' },
+              { key: 'january', label: 'January', color: 'from-orange-500 to-red-500' },
+              { key: 'february', label: 'February', color: 'from-indigo-500 to-purple-500' }
             ].map((period) => (
               <button
                 key={period.key}
@@ -295,12 +284,12 @@ export default function MarketingIntelligence() {
           
           <div className="mt-4 text-sm text-gray-600 bg-blue-50 rounded-lg p-3">
             <span className="font-medium">Viewing:</span> {
-              selectedTimeframe === 'daily' ? 'Today\'s performance only' :
-              selectedTimeframe === '7days' ? 'Last 7 days (rolling)' :
-              selectedTimeframe === 'lastWeek' ? 'Previous week (Mon-Sun)' :
-              selectedTimeframe === 'lastMonth' ? 'Previous month' :
-              selectedTimeframe === 'lastQuarter' ? 'Previous quarter (3 months)' :
-              'All time since launch'
+              selectedTimeframe === 'yesterday' ? 'Yesterday only (1 day)' :
+              selectedTimeframe === 'last_7_days' ? 'Last 7 days (rolling)' :
+              selectedTimeframe === 'last_30_days' ? 'Last 30 days' :
+              selectedTimeframe === 'january' ? 'January 2026' :
+              selectedTimeframe === 'february' ? 'February 2026' :
+              'Selected period'
             }
           </div>
         </div>
@@ -339,16 +328,14 @@ export default function MarketingIntelligence() {
             <div className="flex items-baseline space-x-2 mt-2">
               <span className="text-4xl font-bold">{marketingData.totalLeads.toLocaleString()}</span>
               <span className="text-blue-200 text-lg">
-                {selectedTimeframe === 'daily' ? 'today' :
-                 selectedTimeframe === '7days' ? '7 days' :
-                 selectedTimeframe === 'lastWeek' ? 'last week' :
-                 selectedTimeframe === 'lastMonth' ? 'last month' :
-                 selectedTimeframe === 'lastQuarter' ? 'last quarter' : 'all time'}
+                {selectedTimeframe === 'yesterday' ? 'yesterday' :
+                 selectedTimeframe === 'last_7_days' ? '7 days' :
+                 selectedTimeframe === 'last_30_days' ? '30 days' :
+                 selectedTimeframe === 'january' ? 'in Jan' :
+                 selectedTimeframe === 'february' ? 'in Feb' : 'period'}
               </span>
             </div>
-            <p className="text-blue-200 text-sm mt-2">
-              {selectedTimeframe === 'daily' ? 'Strong daily volume' : 'Lead generation active'}
-            </p>
+            <p className="text-blue-200 text-sm mt-2">New leads in timeframe</p>
           </div>
         </div>
 
@@ -361,15 +348,14 @@ export default function MarketingIntelligence() {
             <p className="text-purple-100 text-sm font-medium">Total Revenue</p>
             <div className="flex items-baseline space-x-2 mt-2">
               <span className="text-4xl font-bold">{formatCurrency(marketingData.totalRevenue)}</span>
-              <div className="flex items-center">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-purple-200" />
-                <span className="text-purple-200 text-sm ml-1">+23%</span>
-              </div>
+              {marketingData.totalRevenue > 0 && (
+                <span className="bg-purple-400/30 text-purple-100 px-2 py-1 rounded-full text-xs font-semibold">
+                  QB CONNECTED
+                </span>
+              )}
             </div>
             <p className="text-purple-200 text-sm mt-2">
-              {selectedTimeframe === 'daily' ? 'Daily avg: $1,400' :
-               selectedTimeframe === '7days' ? 'Target: $4,000/week' :
-               'Period total'}
+              {marketingData.totalRevenue === 0 ? 'No invoices in period' : 'From QuickBooks'}
             </p>
           </div>
         </div>
