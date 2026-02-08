@@ -4,15 +4,13 @@ import Head from 'next/head';
 export default function SkylineDashboard() {
   const [currentView, setCurrentView] = useState('home');
 
-  // Sample data
   const stats = {
     totalExpenses: 4620.75,
     receiptsThisMonth: 12,
-    pendingReceipts: 3,
-    categories: 4
+    pendingReceipts: 3
   };
 
-  const recentExpenses = [
+  const recentActivity = [
     { id: 1, title: 'Marketing Campaign', amount: 1250.00, category: 'Marketing', date: 'Today' },
     { id: 2, title: 'Office Supplies', amount: 340.50, category: 'Supplies', date: 'Yesterday' },
     { id: 3, title: 'Equipment Purchase', amount: 2100.00, category: 'Equipment', date: '2 days ago' }
@@ -35,139 +33,142 @@ export default function SkylineDashboard() {
       
       <div style={{
         minHeight: '100vh',
-        backgroundColor: '#000000',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-        color: '#FFFFFF',
-        overflowX: 'hidden'
+        backgroundColor: '#F2F2F7',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
+        color: '#000000',
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale'
       }}>
-        {/* Hero Section */}
+        {/* Header */}
         <div style={{
-          background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)',
-          padding: '60px 24px 40px',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden'
+          backgroundColor: '#FFFFFF',
+          padding: '20px 20px 16px',
+          borderBottom: '1px solid #E5E5EA'
         }}>
-          {/* Gradient Orbs */}
-          <div style={{
-            position: 'absolute',
-            top: '-50%',
-            left: '-50%',
-            width: '200%',
-            height: '200%',
-            background: 'radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.3) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(139, 92, 246, 0.2) 0%, transparent 50%)',
-            pointerEvents: 'none'
-          }} />
-          
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <p style={{
-              fontSize: '14px',
-              color: '#6366f1',
-              fontWeight: '600',
-              textTransform: 'uppercase',
-              letterSpacing: '2px',
-              marginBottom: '12px'
-            }}>
-              Welcome Back
-            </p>
-            <h1 style={{
-              fontSize: '36px',
-              fontWeight: '700',
-              marginBottom: '8px',
-              letterSpacing: '-0.5px'
-            }}>
-              Skyline Customs
-            </h1>
-            <p style={{
-              fontSize: '17px',
-              color: 'rgba(255,255,255,0.6)',
-              fontWeight: '400'
-            }}>
-              Business Hub
-            </p>
-          </div>
+          <p style={{
+            fontSize: '13px',
+            color: '#8E8E93',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+            fontWeight: '500'
+          }}>
+            Welcome Back
+          </p>
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: '700',
+            margin: 0,
+            letterSpacing: '-0.5px'
+          }}>
+            Skyline Customs
+          </h1>
+          <p style={{
+            fontSize: '17px',
+            color: '#8E8E93',
+            margin: '4px 0 0 0',
+            fontWeight: '400'
+          }}>
+            Business Hub
+          </p>
         </div>
 
-        {/* Main Content */}
-        <div style={{ padding: '0 20px 40px' }}>
+        <div style={{ padding: '20px' }}>
           
-          {/* Quick Stats Row */}
+          {/* Stats Row */}
           <div style={{
             display: 'flex',
             gap: '12px',
-            marginBottom: '32px',
+            marginBottom: '20px',
             overflowX: 'auto',
-            paddingBottom: '8px',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
+            paddingBottom: '4px'
           }}>
-            <StatPill label="This Month" value={`$${stats.totalExpenses.toLocaleString()}`} color="#6366f1" />
-            <StatPill label="Receipts" value={stats.receiptsThisMonth} color="#8b5cf6" />
-            <StatPill label="Pending" value={stats.pendingReceipts} color="#f59e0b" />
+            <StatPill 
+              label="This Month" 
+              value={`$${stats.totalExpenses.toLocaleString()}`}
+              color="#007AFF"
+            />
+            <StatPill 
+              label="Receipts" 
+              value={stats.receiptsThisMonth}
+              color="#34C759"
+            />
+            <StatPill 
+              label="Pending" 
+              value={stats.pendingReceipts}
+              color="#FF9500"
+            />
           </div>
 
           {/* Main Cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             {/* Finances Card */}
             <button
               onClick={() => setCurrentView('finances')}
               style={{
                 width: '100%',
-                padding: '0',
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                padding: 0,
+                backgroundColor: '#FFFFFF',
                 border: 'none',
-                borderRadius: '24px',
+                borderRadius: '16px',
                 cursor: 'pointer',
                 textAlign: 'left',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                overflow: 'hidden'
               }}
-              onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-              onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              onTouchStart={(e) => {
+                e.currentTarget.style.transform = 'scale(0.98)';
+                e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)';
+              }}
+              onTouchEnd={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+              }}
             >
-              <div style={{ padding: '28px' }}>
+              <div style={{ padding: '20px' }}>
                 <div style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '16px',
-                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px',
+                  backgroundColor: '#007AFF15',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '28px',
-                  marginBottom: '20px'
+                  fontSize: '24px',
+                  marginBottom: '16px'
                 }}>
                   💰
                 </div>
                 <h2 style={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  marginBottom: '8px',
-                  color: '#FFFFFF'
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  margin: '0 0 6px 0',
+                  color: '#000000'
                 }}>
                   Finances
                 </h2>
                 <p style={{
                   fontSize: '15px',
-                  color: 'rgba(255,255,255,0.8)',
+                  color: '#8E8E93',
+                  margin: 0,
                   lineHeight: '1.4'
                 }}>
                   P&L reports, marketing analytics, and financial insights
                 </p>
                 <div style={{
-                  marginTop: '20px',
-                  paddingTop: '20px',
-                  borderTop: '1px solid rgba(255,255,255,0.2)',
+                  marginTop: '16px',
+                  paddingTop: '16px',
+                  borderTop: '1px solid #E5E5EA',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center'
                 }}>
-                  <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)' }}>
+                  <span style={{ fontSize: '15px', color: '#007AFF', fontWeight: '500' }}>
                     View Reports
                   </span>
-                  <span style={{ fontSize: '20px', color: '#FFFFFF' }}>→</span>
+                  <span style={{ fontSize: '18px', color: '#C7C7CC' }}>›</span>
                 </div>
               </div>
             </button>
@@ -177,81 +178,92 @@ export default function SkylineDashboard() {
               onClick={() => setCurrentView('expenses')}
               style={{
                 width: '100%',
-                padding: '0',
-                background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+                padding: 0,
+                backgroundColor: '#FFFFFF',
                 border: 'none',
-                borderRadius: '24px',
+                borderRadius: '16px',
                 cursor: 'pointer',
                 textAlign: 'left',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'transform 0.3s ease'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                overflow: 'hidden'
               }}
-              onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-              onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              onTouchStart={(e) => {
+                e.currentTarget.style.transform = 'scale(0.98)';
+                e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)';
+              }}
+              onTouchEnd={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+              }}
             >
-              <div style={{ padding: '28px' }}>
+              <div style={{ padding: '20px' }}>
                 <div style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '16px',
-                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px',
+                  backgroundColor: '#34C75915',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '28px',
-                  marginBottom: '20px'
+                  fontSize: '24px',
+                  marginBottom: '16px'
                 }}>
                   📄
                 </div>
                 <h2 style={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  marginBottom: '8px',
-                  color: '#FFFFFF'
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  margin: '0 0 6px 0',
+                  color: '#000000'
                 }}>
                   Expense Tracker
                 </h2>
                 <p style={{
                   fontSize: '15px',
-                  color: 'rgba(255,255,255,0.8)',
+                  color: '#8E8E93',
+                  margin: 0,
                   lineHeight: '1.4'
                 }}>
                   Scan receipts, track expenses, and organize business costs
                 </p>
                 <div style={{
-                  marginTop: '20px',
-                  paddingTop: '20px',
-                  borderTop: '1px solid rgba(255,255,255,0.2)',
+                  marginTop: '16px',
+                  paddingTop: '16px',
+                  borderTop: '1px solid #E5E5EA',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center'
                 }}>
-                  <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)' }}>
+                  <span style={{ fontSize: '15px', color: '#8E8E93' }}>
                     {stats.receiptsThisMonth} receipts this month
                   </span>
-                  <span style={{ fontSize: '20px', color: '#FFFFFF' }}>→</span>
+                  <span style={{ fontSize: '18px', color: '#C7C7CC' }}>›</span>
                 </div>
               </div>
             </button>
           </div>
 
           {/* Recent Activity */}
-          <div style={{ marginTop: '32px' }}>
+          <div style={{ marginTop: '24px' }}>
             <h3 style={{
               fontSize: '20px',
               fontWeight: '600',
-              marginBottom: '16px',
+              margin: '0 0 12px 0',
               paddingLeft: '4px'
             }}>
               Recent Activity
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {recentExpenses.map((expense) => (
-                <div key={expense.id} style={{
-                  backgroundColor: 'rgba(255,255,255,0.05)',
-                  borderRadius: '16px',
+            <div style={{ 
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            }}>
+              {recentActivity.map((item, index) => (
+                <div key={item.id} style={{
                   padding: '16px',
+                  borderBottom: index < recentActivity.length - 1 ? '1px solid #E5E5EA' : 'none',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center'
@@ -260,23 +272,25 @@ export default function SkylineDashboard() {
                     <p style={{
                       fontSize: '16px',
                       fontWeight: '600',
-                      marginBottom: '4px'
+                      margin: '0 0 4px 0',
+                      color: '#000000'
                     }}>
-                      {expense.title}
+                      {item.title}
                     </p>
                     <p style={{
                       fontSize: '13px',
-                      color: 'rgba(255,255,255,0.5)'
+                      color: '#8E8E93',
+                      margin: 0
                     }}>
-                      {expense.category} • {expense.date}
+                      {item.category} • {item.date}
                     </p>
                   </div>
                   <p style={{
                     fontSize: '16px',
-                    fontWeight: '700',
-                    color: '#6366f1'
+                    fontWeight: '600',
+                    color: '#000000'
                   }}>
-                    ${expense.amount.toLocaleString()}
+                    ${item.amount.toLocaleString()}
                   </p>
                 </div>
               ))}
@@ -291,25 +305,27 @@ export default function SkylineDashboard() {
 function StatPill({ label, value, color }) {
   return (
     <div style={{
-      backgroundColor: 'rgba(255,255,255,0.05)',
-      borderRadius: '16px',
-      padding: '16px 20px',
-      minWidth: '120px',
-      border: `1px solid ${color}30`
+      backgroundColor: '#FFFFFF',
+      borderRadius: '12px',
+      padding: '12px 16px',
+      minWidth: '110px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
     }}>
       <p style={{
-        fontSize: '12px',
-        color: 'rgba(255,255,255,0.5)',
-        marginBottom: '4px',
+        fontSize: '11px',
+        color: '#8E8E93',
+        margin: '0 0 4px 0',
         textTransform: 'uppercase',
-        letterSpacing: '0.5px'
+        letterSpacing: '0.5px',
+        fontWeight: '500'
       }}>
         {label}
       </p>
       <p style={{
-        fontSize: '20px',
+        fontSize: '17px',
         fontWeight: '700',
-        color: color
+        color: color,
+        margin: 0
       }}>
         {value}
       </p>
@@ -321,115 +337,151 @@ function FinancesView({ onBack }) {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#000000',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-      color: '#FFFFFF',
-      padding: '24px'
+      backgroundColor: '#F2F2F7',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
     }}>
-      <button 
-        onClick={onBack}
-        style={{
-          background: 'none',
+      {/* Header */}
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        padding: '16px 20px',
+        borderBottom: '1px solid #E5E5EA',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <button 
+          onClick={onBack}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#007AFF',
+            fontSize: '17px',
+            fontWeight: '400',
+            cursor: 'pointer',
+            padding: 0
+          }}
+        >
+          ‹ Back
+        </button>
+        <h1 style={{
+          fontSize: '17px',
+          fontWeight: '600',
+          margin: 0,
+          flex: 1,
+          textAlign: 'center'
+        }}>
+          Finances
+        </h1>
+        <div style={{ width: '50px' }} />
+      </div>
+
+      <div style={{ padding: '20px' }}>
+        {/* Total Card */}
+        <div style={{
+          backgroundColor: '#007AFF',
+          borderRadius: '16px',
+          padding: '24px',
+          marginBottom: '20px'
+        }}>
+          <p style={{
+            fontSize: '15px',
+            color: 'rgba(255,255,255,0.8)',
+            margin: '0 0 8px 0'
+          }}>
+            Total Expenses (This Month)
+          </p>
+          <p style={{
+            fontSize: '34px',
+            fontWeight: '700',
+            color: '#FFFFFF',
+            margin: 0,
+            letterSpacing: '-0.5px'
+          }}>
+            $4,620.75
+          </p>
+        </div>
+
+        <p style={{
+          color: '#8E8E93',
+          textAlign: 'center',
+          fontSize: '15px'
+        }}>
+          Detailed P&L reports and analytics coming soon...
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ExpensesView({ onBack }) {
+  const expenses = [
+    { id: 1, title: 'Marketing Campaign', amount: 1250.00, category: 'Marketing', hasReceipt: true },
+    { id: 2, title: 'Office Supplies', amount: 340.50, category: 'Supplies', hasReceipt: true },
+    { id: 3, title: 'Equipment', amount: 2100.00, category: 'Equipment', hasReceipt: false },
+    { id: 4, title: 'Utilities', amount: 180.25, category: 'Utilities', hasReceipt: true },
+    { id: 5, title: 'Marketing', amount: 750.00, category: 'Marketing', hasReceipt: true }
+  ];
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#F2F2F7',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
+    }}>
+      {/* Header */}
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        padding: '16px 20px',
+        borderBottom: '1px solid #E5E5EA',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <button 
+          onClick={onBack}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#007AFF',
+            fontSize: '17px',
+            fontWeight: '400',
+            cursor: 'pointer',
+            padding: 0
+          }}
+        >
+          ‹ Back
+        </button>
+        <h1 style={{
+          fontSize: '17px',
+          fontWeight: '600',
+          margin: 0,
+          flex: 1,
+          textAlign: 'center'
+        }}>
+          Expense Tracker
+        </h1>
+        <div style={{ width: '50px' }} />
+      </div>
+
+      <div style={{ padding: '20px' }}>
+        {/* Scan Button */}
+        <button style={{
+          width: '100%',
+          padding: '16px',
+          backgroundColor: '#34C759',
           border: 'none',
-          color: '#6366f1',
+          borderRadius: '12px',
+          color: '#FFFFFF',
           fontSize: '17px',
           fontWeight: '600',
           cursor: 'pointer',
           marginBottom: '20px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
-        }}
-      >
-        ← Back
-      </button>
-      <h1 style={{
-        fontSize: '32px',
-        fontWeight: '700',
-        marginBottom: '24px'
-      }}>
-        Finances
-      </h1>
-      <div style={{
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-        borderRadius: '20px',
-        padding: '24px',
-        marginBottom: '20px'
-      }}>
-        <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px' }}>
-          Total Expenses (This Month)
-        </p>
-        <p style={{ fontSize: '36px', fontWeight: '700' }}>
-          $4,620.75
-        </p>
-      </div>
-      <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>
-        Detailed P&L reports and analytics coming soon...
-      </p>
-    </div>
-  );
-}
-
-function ExpensesView({ onBack }) {
-  const [expenses] = useState([
-    { id: 1, title: 'Marketing Campaign', amount: 1250.00, category: 'Marketing', hasReceipt: true },
-    { id: 2, title: 'Office Supplies', amount: 340.50, category: 'Supplies', hasReceipt: true },
-    { id: 3, title: 'Equipment', amount: 2100.00, category: 'Equipment', hasReceipt: false },
-    { id: 4, title: 'Utilities', amount: 180.25, category: 'Utilities', hasReceipt: true },
-    { id: 5, title: 'Marketing', amount: 750.00, category: 'Marketing', hasReceipt: true }
-  ]);
-
-  return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#000000',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-      color: '#FFFFFF'
-    }}>
-      <div style={{ padding: '24px' }}>
-        <button 
-          onClick={onBack}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#06b6d4',
-            fontSize: '17px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          ← Back
-        </button>
-        <h1 style={{
-          fontSize: '32px',
-          fontWeight: '700',
-          marginBottom: '24px'
-        }}>
-          Expense Tracker
-        </h1>
-
-        {/* Scan Button */}
-        <button style={{
-          width: '100%',
-          padding: '20px',
-          background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
-          border: 'none',
-          borderRadius: '16px',
-          color: '#FFFFFF',
-          fontSize: '17px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          marginBottom: '24px',
-          display: 'flex',
-          alignItems: 'center',
           justifyContent: 'center',
-          gap: '12px'
+          gap: '8px'
         }}>
-          <span style={{ fontSize: '24px' }}>📷</span>
+          <span style={{ fontSize: '20px' }}>📷</span>
           Scan New Receipt
         </button>
 
@@ -437,16 +489,20 @@ function ExpensesView({ onBack }) {
         <h2 style={{
           fontSize: '20px',
           fontWeight: '600',
-          marginBottom: '16px'
+          margin: '0 0 12px 4px'
         }}>
           Recent Expenses
         </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {expenses.map((expense) => (
+        <div style={{ 
+          backgroundColor: '#FFFFFF',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+          {expenses.map((expense, index) => (
             <div key={expense.id} style={{
-              backgroundColor: 'rgba(255,255,255,0.05)',
-              borderRadius: '16px',
               padding: '16px',
+              borderBottom: index < expenses.length - 1 ? '1px solid #E5E5EA' : 'none',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
@@ -455,21 +511,23 @@ function ExpensesView({ onBack }) {
                 <p style={{
                   fontSize: '16px',
                   fontWeight: '600',
-                  marginBottom: '4px'
+                  margin: '0 0 4px 0',
+                  color: '#000000'
                 }}>
                   {expense.title}
                 </p>
                 <p style={{
                   fontSize: '13px',
-                  color: 'rgba(255,255,255,0.5)'
+                  color: '#8E8E93',
+                  margin: 0
                 }}>
-                  {expense.category} {expense.hasReceipt && '✓ Receipt'}
+                  {expense.category} {expense.hasReceipt && '• Receipt saved'}
                 </p>
               </div>
               <p style={{
                 fontSize: '16px',
-                fontWeight: '700',
-                color: '#06b6d4'
+                fontWeight: '600',
+                color: '#000000'
               }}>
                 ${expense.amount.toLocaleString()}
               </p>
