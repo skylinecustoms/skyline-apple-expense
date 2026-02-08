@@ -524,7 +524,7 @@ export default function MarketingIntelligence() {
                     <div className="text-xl font-bold text-gray-900">{formatCurrency(service.adSpend)}</div>
                     <div className="text-xs font-medium text-gray-600 mt-1">Ad Spend</div>
                     <div className="text-xs text-gray-500">
-                      {selectedTimeframe === 'daily' ? 'Today' : 'Period'}
+                      {selectedTimeframe === 'yesterday' ? 'Yesterday' : 'Period'}
                     </div>
                   </div>
 
