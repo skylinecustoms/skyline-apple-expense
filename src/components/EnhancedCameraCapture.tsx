@@ -41,8 +41,7 @@ export default function EnhancedCameraCapture({ onReceiptCaptured }: EnhancedCam
     if (!workerRef.current) {
       const worker = await createWorker('eng')
       await worker.setParameters({
-        tessedit_char_whitelist: '0123456789.,/$-:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#&()%/ ',
-        tessedit_pageseg_mode: '6' // Assume single uniform block of text
+        tessedit_char_whitelist: '0123456789.,/$-:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#&()%/ '
       })
       workerRef.current = worker
     }
