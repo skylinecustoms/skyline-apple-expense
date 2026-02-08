@@ -6,8 +6,6 @@ import {
   ArrowTrendingUpIcon, 
   ArrowTrendingDownIcon,
   UsersIcon,
-  CurrencyDollarIcon,
-  TargetIcon,
   BanknotesIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline'
@@ -152,14 +150,14 @@ export default function RealTimeDashboard() {
         <MetricCard
           title="Hot Leads"
           value={dashboardData?.hot_leads || 0}
-          icon={TargetIcon}
+          icon={ChartBarIcon}
           color="orange"
           subtitle="Active prospects"
         />
         <MetricCard
           title="Customers"
           value={dashboardData?.total_customers || 0}
-          icon={CurrencyDollarIcon}
+          icon={UsersIcon}
           color="green"
           subtitle="Paying customers"
         />
@@ -179,7 +177,7 @@ export default function RealTimeDashboard() {
           <div className={`rounded-xl p-6 border-2 ${getPerformanceColor(kpiData.cac_performance)}`}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Customer Acquisition Cost</h3>
-              <CurrencyDollarIcon className="h-6 w-6" />
+              <BanknotesIcon className="h-6 w-6" />
             </div>
             <div className="text-3xl font-bold mb-2">
               ${kpiData.blended_cac.toFixed(2)}
